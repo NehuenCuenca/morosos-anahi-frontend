@@ -10,6 +10,7 @@
   --chocolate-light: #6B4F4F;
   --beige: #EED6C4;
   --marshmallow: #FFF3E4;
+  --modal-fade-bg: rgba(48,34,34, 80%)
 }
 
 [data-theme="light"] {

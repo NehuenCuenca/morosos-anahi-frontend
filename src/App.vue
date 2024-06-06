@@ -1,15 +1,40 @@
 <script setup>
-  import Navbar from './components/Navbar.vue';
+  import DefaulterFilters from './components/DefaulterFilters.vue';
+import DefaulterList from './components/DefaulterList.vue';
+import DefaulterPagination from './components/DefaulterPagination.vue';
+import Navbar from './components/Navbar.vue';
 
 </script>
 
 <template>
   <section class="principal-container">
     <header class="principal-container__header">
+      <div class="fade-bg"></div>
       <Navbar />
     </header>
+    
     <main class="principal-container__content">
-      <h1>Main title</h1>
+      <h1 class="content-title">Lista de morosos</h1>
+
+      <div class="add-and-search">
+        <button type="button" class="add-defaulter-button" >
+          <i class='bx bx-plus add-defaulter-button__icon bx-md'></i>
+          <span class='add-defaulter-button__text'>Agregar moroso</span>
+        </button>
+        
+        <form class="search-defaulter-form">
+          <input type="text" class="search-defaulter-form__input" name="search-defaulter-input" placeholder="Buscar por nombre">
+          <button type="submit" class="search-defaulter-form__submit-button" title="Buscar moroso">
+            <i class='bx bx-search-alt-2 bx-md'></i>
+          </button>
+        </form>
+      </div>
+
+      <DefaulterFilters />
+      
+      <DefaulterList />
+      
+      <DefaulterPagination />
     </main>
   </section>
 </template>
@@ -38,22 +63,28 @@
 
 .principal-container__header:has(.navbar_open){
   border-radius: 0 25px 25px 0;
-  animation: myAnim .3s ease 0s 1 normal forwards;
+  animation: slideInLeft .3s ease 0s 1 normal forwards;
 }
 
 .principal-container__header:has(.navbar_open) + .principal-container__content{
-  background-color: var(--modal-fade-bg);
   pointer-events: none;
+  background-color: var(--modal-fade-bg);
+  filter: blur(2px) brightness(0.4);
 }
 
 
 .principal-container__content{
   margin-left: 50px;
+  padding: 1rem 1.5rem;
   position: absolute;
   width: calc(100% - 50px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-@keyframes myAnim {
+@keyframes slideInLeft {
 	0% {
 		opacity: 0;
 		transform: translateX(-250px);
@@ -63,5 +94,59 @@
 		opacity: 1;
 		transform: translateX(0);
 	}
+}
+
+.content-title{
+  font: normal normal normal 2.5rem var(--display-font);
+  color: var(--color-titles);
+  margin: 0 0 auto 0;
+}
+
+.add-and-search{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.add-defaulter-button{
+  background-color: var(--color-titles);
+  border-radius: 25px;
+  padding: 1rem .5rem;
+  display: flex;
+  gap: 5px;
+  color: var(--color-bg);
+  box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.5);
+}
+/* .add-defaulter-button__icon{} */
+
+.add-defaulter-button__text{
+  font: normal normal normal 1.5rem var(--display-font);
+}
+
+.search-defaulter-form{
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-defaulter-form__input{
+  background-color: var(--input-text-bg);
+  border-radius: 25px;
+  padding: 1rem;
+  color: var(--color-bg);
+  box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.5);
+  border: none;
+  outline: none;
+  font: normal normal normal 1.5rem var(--display-font);
+  position: relative;
+}
+
+.search-defaulter-form__input::placeholder{
+  font: normal normal normal 1.5rem var(--display-font);
+  color: whitesmoke;
+}
+
+.search-defaulter-form__submit-button{
+  color: whitesmoke;
+  position: absolute;
+  right: .5rem;
 }
 </style>

@@ -10,7 +10,10 @@
   --chocolate-light: #6B4F4F;
   --beige: #EED6C4;
   --marshmallow: #FFF3E4;
-  --modal-fade-bg: rgba(48,34,34, 80%)
+  --positive-balance:#026F00;
+  --negative-balance: #6F0000;
+  --modal-fade-bg: rgba(48,34,34, 80%);
+  --input-text-bg: rgba(107, 79, 79, 0.6);
 }
 
 [data-theme="light"] {

@@ -25,7 +25,7 @@
 <style scoped>
 .navbar{
   height: 100%;
-  padding: 1rem 0 0 0;
+  padding: 1rem .2rem 0 .2rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

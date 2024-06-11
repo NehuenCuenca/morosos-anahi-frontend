@@ -15,6 +15,8 @@
 .filters-by{
   align-self: flex-start;
   font: normal normal normal 500 1.3rem var(--display-font);
+  display: flex;
+  gap: .5rem;
 }
 .filters-by__filter-button{
   font: normal normal normal 400 1.2rem var(--default-font);

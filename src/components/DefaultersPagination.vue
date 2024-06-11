@@ -14,6 +14,8 @@
 .pagination{
   align-self: flex-start;
   font: normal normal normal 500 1.3rem var(--default-font);
+  display: flex;
+  gap: .5rem;
 }
 .direction-button,
 .page-button{

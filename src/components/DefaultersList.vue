@@ -44,10 +44,5 @@
 .defaulter-balance{
   font: normal normal normal 500 1.3rem var(--default-font);
 }
-.positive-balance{
-  color: var(--positive-balance);
-}
-.negative-balance{
-  color: var(--negative-balance);
-}
+
 </style>

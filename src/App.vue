@@ -1,15 +1,28 @@
 <script setup>
-  import DefaulterFilters from './components/DefaulterFilters.vue';
-import DefaulterList from './components/DefaulterList.vue';
-import DefaulterPagination from './components/DefaulterPagination.vue';
-import Navbar from './components/Navbar.vue';
+  import DefaulterArticlesList from './components/DefaulterArticlesList.vue';
+  import DefaulterBalancesList from './components/DefaulterBalancesList.vue';
+  import DefaulterForm from './components/DefaulterForm.vue';
+  import DefaultersFilters from './components/DefaultersFilters.vue';
+  import DefaultersList from './components/DefaultersList.vue';
+  import DefaultersPagination from './components/DefaultersPagination.vue';
+  import Modal from './components/Modal.vue';
+  import Navbar from './components/Navbar.vue';
+  import { ref } from 'vue';
 
+
+  const isCreatingDefaulter = ref(false)
+  const handleCreateDefaulter = (event) => { 
+    isCreatingDefaulter.value = true
+  }
+
+  const closeModal = () => { 
+    isCreatingDefaulter.value = false
+  }
 </script>
 
 <template>
   <section class="principal-container">
     <header class="principal-container__header">
-      <div class="fade-bg"></div>
       <Navbar />
     </header>
     
@@ -17,11 +30,18 @@ import Navbar from './components/Navbar.vue';
       <h1 class="content-title">Lista de morosos</h1>
 
       <div class="add-and-search">
-        <button type="button" class="add-defaulter-button" >
+        <button type="button" class="add-defaulter-button" @click="handleCreateDefaulter">
           <i class='bx bx-plus add-defaulter-button__icon bx-md'></i>
           <span class='add-defaulter-button__text'>Agregar moroso</span>
         </button>
-        
+
+        <Modal v-if="isCreatingDefaulter" @handle-close-modal="closeModal">
+          <DefaulterForm />
+          <div class="divider-modal"></div>
+          <DefaulterArticlesList />
+          <DefaulterBalancesList />
+        </Modal>
+
         <form class="search-defaulter-form">
           <input type="text" class="search-defaulter-form__input" name="search-defaulter-input" placeholder="Buscar por nombre">
           <button type="submit" class="search-defaulter-form__submit-button" title="Buscar moroso">
@@ -30,16 +50,16 @@ import Navbar from './components/Navbar.vue';
         </form>
       </div>
 
-      <DefaulterFilters />
+      <DefaultersFilters />
       
-      <DefaulterList />
+      <DefaultersList />
       
-      <DefaulterPagination />
+      <DefaultersPagination />
     </main>
   </section>
 </template>
 
-<style scoped>
+<style>
 
 .principal-container{
   width: 100%;
@@ -58,6 +78,7 @@ import Navbar from './components/Navbar.vue';
   width: min-content;
   background-color: var(--beige);
   z-index: 1;
+  padding: .5rem;
 }
 
 
@@ -127,14 +148,17 @@ import Navbar from './components/Navbar.vue';
   display: flex;
   align-items: center;
 }
-.search-defaulter-form__input{
+.search-defaulter-form__input {
   background-color: var(--input-text-bg);
   border-radius: 25px;
-  padding: 1rem;
+  padding: .5rem 1rem;
   color: var(--color-bg);
   box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.5);
   border: none;
   outline: none;
+}
+
+.search-defaulter-form__input{
   font: normal normal normal 1.5rem var(--display-font);
   position: relative;
 }
@@ -148,5 +172,20 @@ import Navbar from './components/Navbar.vue';
   color: whitesmoke;
   position: absolute;
   right: .5rem;
+}
+
+.divider-modal{
+  height: 2px;
+  width: 90%;
+  background-color: var(--color-titles);
+  border-radius: 10px;
+  margin: 2rem auto;
+}
+
+.positive-balance{
+  color: var(--positive-balance);
+}
+.negative-balance{
+  color: var(--negative-balance);
 }
 </style>

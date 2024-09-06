@@ -1,12 +1,16 @@
 <template>
     <ul class="balances-list">
-        <li class="balance-item total-balance negative-balance">SALDO: $300</li>
-        <li class="balance-item negative-balance">NEGATIVO: $600</li>
-        <li class="balance-item positive-balance">A FAVOR: $300</li>
+        <li class="balance-item total-balance negative-balance">SALDO: ${{balances.total}}</li>
+        <li class="balance-item negative-balance">NEGATIVO: ${{balances.negative}}</li>
+        <li class="balance-item positive-balance">A FAVOR: ${{balances.positive}}</li>
     </ul>
 </template>
 
 <script setup>
+
+    const props = defineProps({
+        balances: Object,
+    })
 
 </script>
 

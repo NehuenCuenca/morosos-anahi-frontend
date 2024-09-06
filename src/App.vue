@@ -7,10 +7,12 @@
   import DefaultersPagination from './components/DefaultersPagination.vue';
   import Modal from './components/Modal.vue';
   import Navbar from './components/Navbar.vue';
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
+  import useDefaulters from './composables/useDefaulters';
 
 
   const isCreatingDefaulter = ref(false)
+  const defaulters = ref([])
   const handleCreateDefaulter = (event) => { 
     isCreatingDefaulter.value = true
   }
@@ -18,6 +20,14 @@
   const closeModal = () => { 
     isCreatingDefaulter.value = false
   }
+
+  const { getAllDefaulters } = useDefaulters()
+
+  onMounted( async() => {
+    const defaultersPromise = await getAllDefaulters()
+    defaulters.value = defaultersPromise.slice(0, 12)
+    console.log(defaulters.value);
+  })
 </script>
 
 <template>
@@ -39,7 +49,7 @@
           <DefaulterForm />
           <div class="divider-modal"></div>
           <DefaulterArticlesList />
-          <DefaulterBalancesList />
+          <DefaulterBalancesList :balances="{total: 0, positive: 0, negative: 0}"/>
         </Modal>
 
         <form class="search-defaulter-form">
@@ -52,7 +62,7 @@
 
       <DefaultersFilters />
       
-      <DefaultersList />
+      <DefaultersList :defaulters="defaulters"/>
       
       <DefaultersPagination />
     </main>

@@ -1,38 +1,21 @@
 <template>
     <ul class="articles-list">
-        <li class="articles-list-item positive-balance">
-            <span class="price-detail-tag">$300 alfajor</span>
-            <button class="edit-tag">
+        <li v-for="({unit_price, item_name}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'negative-balance' : 'positive-balance'">
+            <span class="price-detail-tag">${{unit_price}} {{item_name}}</span>
+            <button class="edit-tag" @click="$emit('handleEditArticle', indexArticle)">
                 <i class='bx bx-edit bx-sm'></i>
             </button>
-            <button class="delete-tag">
+            <button class="delete-tag" @click="$emit('handleDeleteArticle', indexArticle)">
                 <i class='bx bx-trash bx-sm'></i>
             </button>
         </li>
-        <li class="articles-list-item negative-balance">
-            <span class="price-detail-tag">$600 alfajor</span>
-            <button class="edit-tag">
-                <i class='bx bx-edit bx-sm'></i>
-            </button>
-            <button class="delete-tag">
-                <i class='bx bx-trash bx-sm'></i>
-            </button>
-        </li>
-        <li class="articles-list-item negative-balance">
-            <span class="price-detail-tag">$600 alfajor</span>
-            <button class="edit-tag">
-                <i class='bx bx-edit bx-sm'></i>
-            </button>
-            <button class="delete-tag">
-                <i class='bx bx-trash bx-sm'></i>
-            </button>
-        </li>
-        
     </ul>
 </template>
 
 <script setup>
-
+    const props = defineProps({
+        articles: Array,
+    })
 </script>
 
 <style scoped>

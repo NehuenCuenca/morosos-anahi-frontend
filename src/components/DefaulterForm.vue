@@ -1,20 +1,20 @@
 <template>
     <form class="defaulter-form">
-        <input type="text" name="name-defaulter" class="name-defaulter-input" placeholder="Nombre de moroso">
+        <input type="text" :value="defaulterName" name="name-defaulter" class="name-defaulter-input" placeholder="Nombre de moroso">
         
         <div class="field">
           <label for="input-unit-price" class="field__label">Precio unitario</label>
-          <input type="number" class="field__input" id="input-unit-price" name="unit-price" required placeholder="Costo por unidad">
+          <input type="number" :value="articleInfo?.unit_price" class="field__input" id="input-unit-price" name="unit-price" required placeholder="Costo por unidad">
         </div>
 
         <div class="field">
           <label for="input-quantity-product" class="field__label">Cantidad</label>
-          <input type="number" class="field__input" id="input-quantity-product" name="quantity" min="0" required placeholder="Cantidad de productos">
+          <input type="number" :value="articleInfo?.quantity" class="field__input" id="input-quantity-product" name="quantity" min="0" required placeholder="Cantidad de productos">
         </div>
 
         <div class="field">
           <label for="input-detail" class="field__label">Razón o detalle</label>
-          <input type="text" class="field__input" id="input-detail" name="detail" required minlength="3" maxlength="40" placeholder="Nombre de producto">
+          <input type="text" :value="articleInfo?.item_name" class="field__input" id="input-detail" name="detail" required minlength="3" maxlength="40" placeholder="Nombre de producto">
         </div>
 
         <div class="field">
@@ -27,7 +27,10 @@
 </template>
 
 <script setup>
-
+  const props = defineProps({
+    defaulterName: String,
+    articleInfo: Object
+  })
 </script>
 
 <style scoped >

@@ -1,7 +1,7 @@
 <template>
     <div class="pagination">
         <button class="direction-button">Anterior</button>
-        <button v-for="item in 5" class="page-button" :class="item === 3 ? ' page-button_active': ''">{{ item }}</button>
+        <button v-for="item in 5" class="page-button" :class="item === 1 ? ' page-button_active': ''">{{ item }}</button>
         <button class="direction-button">Siguiente</button>
     </div>
 </template>

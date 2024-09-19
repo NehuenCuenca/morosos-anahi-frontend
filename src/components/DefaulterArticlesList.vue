@@ -1,7 +1,7 @@
 <template>
     <ul class="articles-list">
-        <li v-for="({unit_price, item_name}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'negative-balance' : 'positive-balance'">
-            <span class="price-detail-tag">${{unit_price}} {{item_name}}</span>
+        <li v-for="({unit_price, name}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
+            <span class="price-detail-tag">${{unit_price}} {{name}}</span>
             <button class="edit-tag" @click="$emit('handleEditArticle', indexArticle)">
                 <i class='bx bx-edit bx-sm'></i>
             </button>

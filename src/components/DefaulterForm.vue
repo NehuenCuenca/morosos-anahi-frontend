@@ -14,7 +14,7 @@
 
         <div class="field">
           <label for="input-detail" class="field__label">Razón o detalle</label>
-          <input type="text" :value="articleInfo?.item_name" class="field__input" id="input-detail" name="detail" required minlength="3" maxlength="40" placeholder="Nombre de producto">
+          <input type="text" :value="articleInfo?.name" class="field__input" id="input-detail" name="detail" required minlength="3" maxlength="40" placeholder="Nombre de producto">
         </div>
 
         <div class="field">

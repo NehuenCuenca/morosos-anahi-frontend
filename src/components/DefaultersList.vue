@@ -1,14 +1,14 @@
 <template>
     <h2 v-if="defaulters.length === 0">No hay morosos 🥳</h2>
     <ul v-else class="defaulters-list">
-        <li v-for="({name, balances}, index) in defaulters" :key="index" class="defaulters-list-item">
-          <button type="button" @click="(event) => handleViewDefaulter(index, event)" class="defaulters-list-item__button">
+        <li v-for="({id, name, debt_balance, discount_balance, total_balance}, index) in defaulters" :key="index" class="defaulters-list-item">
+          <button type="button" @click="(event) => handleViewDefaulter(id, event)" class="defaulters-list-item__button">
             <span class="defaulter-name">{{name}}</span>  
             <span class="defaulter-balance" 
-                  :class="balances.positive > balances.negative 
-                          ? 'positive-balance' 
-                          : 'negative-balance'">
-              ${{balances.total}}
+                  :class="total_balance > 0 
+                          ? 'debt_balance' 
+                          : 'discount_balance'">
+              ${{total_balance}}
             </span>
           </button>
         </li>
@@ -17,7 +17,7 @@
       <DefaulterForm :defaulterName="defaulterInfo.name" :articleInfo="defaulterArticleSelected"/>
       <div class="divider-modal"></div>
       <DefaulterArticlesList :articles="defaulterArticles" @handle-edit-article="handleEditArticle" @handle-delete-article="handleDeleteArticle"/>
-      <DefaulterBalancesList :balances="defaulterInfo.balances"/>
+      <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
     </Modal>
 </template>
 
@@ -29,7 +29,7 @@ import DefaulterArticlesList from './DefaulterArticlesList.vue';
 import DefaulterBalancesList from './DefaulterBalancesList.vue';
 import useDefaulters from '../composables/useDefaulters';
 
-const { getDefaulterInfoById } = useDefaulters()
+const { getDefaulterInfoById, getItemsOfDefaulterById } = useDefaulters()
 
 const props = defineProps({
   defaulters: Array,
@@ -39,16 +39,18 @@ const defaulterInfo = ref(null)
 const defaulterArticles = ref([])
 const defaulterArticleSelected = ref(null)
 const isModalOpen = ref(false)
+
 const closeModal = () => { 
   isModalOpen.value = false
+  defaulterInfo.value = null
+  defaulterArticles.value = []
+  defaulterArticleSelected.value = null
 }
 
-const handleViewDefaulter = async(defaulterIndex, event) => { 
+const handleViewDefaulter = async(defaulterId, event) => {  
   isModalOpen.value = true
-  defaulterInfo.value = await getDefaulterInfoById(defaulterIndex)
-  const { negative_items, positive_items } = defaulterInfo.value
-  defaulterArticles.value = [...negative_items, ...positive_items]
-  console.log(defaulterArticles.value);
+  defaulterInfo.value = await getDefaulterInfoById(defaulterId)
+  defaulterArticles.value = await getItemsOfDefaulterById(defaulterId)
 }
 
 const handleEditArticle = (indexArticleSelected) => { 

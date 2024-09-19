@@ -1,15 +1,17 @@
 <template>
     <ul class="balances-list">
-        <li class="balance-item total-balance negative-balance">SALDO: ${{balances.total}}</li>
-        <li class="balance-item negative-balance">NEGATIVO: ${{balances.negative}}</li>
-        <li class="balance-item positive-balance">A FAVOR: ${{balances.positive}}</li>
+        <li class="balance-item" :class="(total_balance > 0) ? 'debt_balance' : 'discount_balance'">SALDO: ${{total_balance}}</li>
+        <li class="balance-item debt_balance">NEGATIVO: ${{debt_balance}}</li>
+        <li class="balance-item discount_balance">A FAVOR: ${{discount_balance}}</li>
     </ul>
 </template>
 
 <script setup>
 
     const props = defineProps({
-        balances: Object,
+        debt_balance: Number,
+        discount_balance: Number,
+        total_balance: Number,
     })
 
 </script>

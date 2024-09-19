@@ -11,7 +11,9 @@
   "dependencies": {
     "@fontsource/carter-one": "^5.0.12",
     "@fontsource/readex-pro": "^5.0.13",
+    "axios": "^1.7.7",
     "boxicons": "^2.1.4",
+    "pinia": "^2.2.2",
     "vue": "^3.4.21"
   },
   "devDependencies": {

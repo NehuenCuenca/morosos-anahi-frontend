@@ -1,11 +1,18 @@
-import mock_defaulters from '../data/defaulters.json'
-import mock_defaulter from '../data/defaulter-info.json'
+import axios from "axios";
 
 const useDefaulters = () => {
+    const LOCAL_URL = import.meta.env.VITE_LOCAL_URL
+    
+    const instance = axios.create({
+      baseURL: `${LOCAL_URL}/api/`,
+      timeout: 2500,
+      headers: {'X-Custom-Header': 'foobar'}
+    });
 
     const getAllDefaulters = async() => {
       try {
-        return [ ...mock_defaulters ];
+        const response = await instance.get('/defaulters');
+        return response.data.defaulters.data
       } catch (error) {
         console.error("EXPLOTO ESTO --->: ", error);
       }
@@ -13,7 +20,17 @@ const useDefaulters = () => {
     
     const getDefaulterInfoById = async(defaulterId) => { 
         try {
-            return { ...mock_defaulter };
+          const response = await instance.get(`/defaulters/${defaulterId}`);
+          return response.data.defaulter
+        } catch (error) {
+            console.error("EXPLOTO ESTO --->: ", error);
+        }
+    }
+    
+    const getItemsOfDefaulterById = async(defaulterId) => { 
+        try {
+          const response = await instance.get(`/defaulters/${defaulterId}/items`);
+          return response.data.items
         } catch (error) {
             console.error("EXPLOTO ESTO --->: ", error);
         }
@@ -21,7 +38,8 @@ const useDefaulters = () => {
     
     return {
         getAllDefaulters,
-        getDefaulterInfoById
+        getDefaulterInfoById,
+        getItemsOfDefaulterById
     };
   };
   

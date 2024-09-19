@@ -11,8 +11,8 @@
   --beige: #EED6C4;
   --marshmallow: #FFF3E4;
   --grey: #D9D9D9;
-  --positive-balance:#026F00;
-  --negative-balance: #6F0000;
+  --discount_balance:#026F00;
+  --debt_balance: #6F0000;
   --modal-fade-bg: rgba(48,34,34, 80%);
   --input-text-bg: rgba(107, 79, 79, 0.6);
 }

@@ -192,10 +192,10 @@
   margin: 2rem auto;
 }
 
-.positive-balance{
-  color: var(--positive-balance);
+.discount_balance{
+  color: var(--discount_balance);
 }
-.negative-balance{
-  color: var(--negative-balance);
+.debt_balance{
+  color: var(--debt_balance);
 }
 </style>

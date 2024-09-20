@@ -9,10 +9,15 @@ const useDefaulters = () => {
       headers: {'X-Custom-Header': 'foobar'}
     });
 
-    const getAllDefaulters = async() => {
+    const getAllDefaulters = async(callParams) => {
+      const { paginatedBy, page, orderByLastestRecent, orderByAlphabet } = callParams
       try {
-        const response = await instance.get('/defaulters');
-        return response.data.defaulters.data
+        const response = await instance.get('/defaulters', {
+          params: {
+            ...callParams
+          }
+        });
+        return response.data
       } catch (error) {
         console.error("EXPLOTO ESTO --->: ", error);
       }

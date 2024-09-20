@@ -14,13 +14,19 @@
   const isCreatingDefaulter = ref(false)
   const defaulters = ref([])
   const pagination = ref(null)
+  const orderBy = ref({})
   
   const handleCreateDefaulter = (event) => { 
     isCreatingDefaulter.value = true
   }
   
   const handlePaginationUpdate = async(newPage) => {
-    await setNewDefaulters({page: newPage})
+    await setNewDefaulters({ page: newPage, ...orderBy.value })
+  }
+
+  const handleOrderUpdate = async(newOrder) => {
+    orderBy.value = newOrder
+    await setNewDefaulters({paginatedBy: 12, page: 1, ...newOrder})
   }
 
   const closeModal = () => { 
@@ -83,7 +89,7 @@
         </form>
       </div>
 
-      <DefaultersFilters />
+      <DefaultersFilters :orderBy="orderBy" @handle-order-update="handleOrderUpdate"/>
       
       <template v-if="defaulters.length > 0">
 

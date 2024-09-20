@@ -1,14 +1,36 @@
 <template>
     <div class="filters-by">
         <span>Ordenar por:</span>
-        <button class="filters-by__filter-button">Alfabeticamente</button>
+        <button @click="setOrderBy('orderByAlphabet')" 
+          class="filters-by__filter-button" 
+          :class="(orderName === 'orderByAlphabet' && orderValue)? 'filters-by__filter-button_active':''">
+          Alfabeticamente
+        </button>
         <span>-</span>
-        <button class="filters-by__filter-button filters-by__filter-button_active">Mas reciente</button>
+        <button @click="setOrderBy('orderByLastestRecent')" 
+          class="filters-by__filter-button" 
+          :class="(orderName === 'orderByLastestRecent' && orderValue)? 'filters-by__filter-button_active':''">
+          Mas reciente
+        </button>
     </div>
 </template>
 
 <script setup>
 
+import { computed } from 'vue';
+
+  const props = defineProps({
+    orderBy: Object,
+  })
+  const emits = defineEmits(['handle-order-update'])
+
+  const setOrderBy = (orderType) => { 
+    const toggleOrder = (orderName.value === orderType && orderValue.value)? false : true 
+    emits('handle-order-update', {[orderType]: toggleOrder})
+  }
+
+  const orderName  = computed(() => Object.keys(props.orderBy)[0])
+  const orderValue = computed(() => Object.values(props.orderBy)[0])
 </script>
 
 <style scoped>

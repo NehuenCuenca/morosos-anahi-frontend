@@ -12,6 +12,12 @@
           :class="(orderName === 'orderByLastestRecent' && orderValue)? 'filters-by__filter-button_active':''">
           Mas reciente
         </button>
+        <span>-</span>
+        <button @click="setOrderBy('orderByLargestDebtor')" 
+          class="filters-by__filter-button" 
+          :class="(orderName === 'orderByLargestDebtor' && orderValue)? 'filters-by__filter-button_active':''">
+          Mayor deudor
+        </button>
     </div>
 </template>
 

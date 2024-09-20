@@ -26,7 +26,7 @@
 
   const handleOrderUpdate = async(newOrder) => {
     orderBy.value = newOrder
-    await setNewDefaulters({paginatedBy: 12, page: 1, ...newOrder})
+    await setNewDefaulters({ paginatedBy: 12, page: 1, ...newOrder })
   }
 
   const closeModal = () => { 
@@ -36,20 +36,16 @@
   const { getAllDefaulters } = useDefaulters()
 
   onMounted( async() => {
-    await setNewDefaulters({
-      paginatedBy: 12, 
-      page: 1,
-      orderByLastestRecent: false,
-      orderByAlphabet: false
-    })
+    await setNewDefaulters({ paginatedBy: 12, page: 1 })
   })
 
-  const setNewDefaulters = async({paginatedBy=12, page=1, orderByLastestRecent = false, orderByAlphabet = false}) => { 
+  const setNewDefaulters = async({paginatedBy=12, page=1, orderByLastestRecent = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
     const defaultersPromise = await getAllDefaulters({
       paginatedBy,
       page,
       orderByLastestRecent,
       orderByAlphabet,
+      orderByLargestDebtor,
     })
 
     const { data, ...paginationFields } = defaultersPromise.defaulters

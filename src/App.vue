@@ -7,14 +7,20 @@
   import DefaultersPagination from './components/DefaultersPagination.vue';
   import Modal from './components/Modal.vue';
   import Navbar from './components/Navbar.vue';
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref} from 'vue';
   import useDefaulters from './composables/useDefaulters';
 
 
   const isCreatingDefaulter = ref(false)
   const defaulters = ref([])
+  const pagination = ref(null)
+  
   const handleCreateDefaulter = (event) => { 
     isCreatingDefaulter.value = true
+  }
+  
+  const handlePaginationUpdate = async(newPage) => {
+    await setNewDefaulters({page: newPage})
   }
 
   const closeModal = () => { 
@@ -24,10 +30,27 @@
   const { getAllDefaulters } = useDefaulters()
 
   onMounted( async() => {
-    const defaultersPromise = await getAllDefaulters()
-    defaulters.value = defaultersPromise.slice(0, 12)
-    console.log(defaulters.value);
+    await setNewDefaulters({
+      paginatedBy: 12, 
+      page: 1,
+      orderByLastestRecent: false,
+      orderByAlphabet: false
+    })
   })
+
+  const setNewDefaulters = async({paginatedBy=12, page=1, orderByLastestRecent = false, orderByAlphabet = false}) => { 
+    const defaultersPromise = await getAllDefaulters({
+      paginatedBy,
+      page,
+      orderByLastestRecent,
+      orderByAlphabet,
+    })
+
+    const { data, ...paginationFields } = defaultersPromise.defaulters
+
+    pagination.value = paginationFields
+    defaulters.value = data
+  }
 </script>
 
 <template>
@@ -62,9 +85,14 @@
 
       <DefaultersFilters />
       
-      <DefaultersList :defaulters="defaulters"/>
-      
-      <DefaultersPagination />
+      <template v-if="defaulters.length > 0">
+
+        <DefaultersList :defaulters="defaulters"/>
+        
+        <DefaultersPagination 
+        :pagination="pagination"
+        @handle-pagination-update="handlePaginationUpdate"/>
+      </template>
     </main>
   </section>
 </template>

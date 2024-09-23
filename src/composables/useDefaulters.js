@@ -10,7 +10,7 @@ const useDefaulters = () => {
     });
 
     const getAllDefaulters = async(callParams) => {
-      const { paginatedBy, page, orderByLastestRecent, orderByAlphabet } = callParams
+      // const { paginatedBy, page, orderByLastestRecent, orderByAlphabet } = callParams
       try {
         const response = await instance.get('/defaulters', {
           params: {

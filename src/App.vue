@@ -9,6 +9,7 @@
   import Navbar from './components/Navbar.vue';
   import { onMounted, ref} from 'vue';
   import useDefaulters from './composables/useDefaulters';
+  import DefaulterSearchForm from './components/DefaulterSearchForm.vue';
 
 
   const isCreatingDefaulter = ref(false)
@@ -16,12 +17,17 @@
   const pagination = ref(null)
   const orderBy = ref({})
   
+  const isModalOpen = ref(false)
+  const defaulterInfo = ref(null)
+  const defaulterArticles = ref([])
+  const defaulterArticleSelected = ref(null)
+  
   const handleCreateDefaulter = (event) => { 
     isCreatingDefaulter.value = true
   }
   
   const handlePaginationUpdate = async(newPage) => {
-    await setNewDefaulters({ page: newPage, ...orderBy.value })
+    await setNewDefaulters({ paginatedBy: 12, page: newPage, ...orderBy.value })
   }
 
   const handleOrderUpdate = async(newOrder) => {
@@ -31,15 +37,21 @@
 
   const closeModal = () => { 
     isCreatingDefaulter.value = false
+    isModalOpen.value = false
+    cleanPreviousDefaulterInfo()
   }
 
-  const { getAllDefaulters } = useDefaulters()
+  const { 
+    getAllDefaulters, 
+    getDefaulterInfoById,
+    getItemsOfDefaulterById
+  } = useDefaulters()
 
   onMounted( async() => {
-    await setNewDefaulters({ paginatedBy: 12, page: 1 })
+    const resp = await setNewDefaulters({ paginatedBy: 12, page: 1 })
   })
 
-  const setNewDefaulters = async({paginatedBy=12, page=1, orderByLastestRecent = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
+  const setNewDefaulters = async({paginatedBy, page=1, orderByLastestRecent = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
     const defaultersPromise = await getAllDefaulters({
       paginatedBy,
       page,
@@ -52,6 +64,36 @@
 
     pagination.value = paginationFields
     defaulters.value = data
+  }
+
+  const openModal = async({ defaulterId }) => {
+    cleanPreviousDefaulterInfo()
+
+    isModalOpen.value = true
+    defaulterInfo.value = await getDefaulterInfoById(defaulterId)
+    defaulterArticles.value = await getItemsOfDefaulterById(defaulterId)
+  }
+
+  const handleEditArticle = (indexArticleSelected) => { 
+    console.log('EDIT executed', indexArticleSelected); 
+    defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
+  }
+
+  const handleDeleteArticle = (indexArticleSelected) => { 
+    console.log('DELETE executed', indexArticleSelected); 
+    defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
+    const confirmDeleteArtice = confirm(`¿Esta seguro de eliminar '${defaulterArticleSelected.value.item_name} $${defaulterArticleSelected.value.unit_price}'?`)
+
+    if(confirmDeleteArtice) {
+      defaulterArticles.value = defaulterArticles.value.toSpliced(indexArticleSelected, 1)
+      defaulterArticleSelected.value = null
+    }
+  }
+
+  const cleanPreviousDefaulterInfo = () => { 
+    defaulterInfo.value = null
+    defaulterArticles.value = []
+    defaulterArticleSelected.value = null
   }
 </script>
 
@@ -77,24 +119,26 @@
           <DefaulterBalancesList :balances="{total: 0, positive: 0, negative: 0}"/>
         </Modal>
 
-        <form class="search-defaulter-form">
-          <input type="text" class="search-defaulter-form__input" name="search-defaulter-input" placeholder="Buscar por nombre">
-          <button type="submit" class="search-defaulter-form__submit-button" title="Buscar moroso">
-            <i class='bx bx-search-alt-2 bx-md'></i>
-          </button>
-        </form>
+        <DefaulterSearchForm @handle-open-modal="openModal"/>
       </div>
 
       <DefaultersFilters :orderBy="orderBy" @handle-order-update="handleOrderUpdate"/>
       
       <template v-if="defaulters.length > 0">
 
-        <DefaultersList :defaulters="defaulters"/>
+        <DefaultersList @handle-open-modal="openModal" :defaulters="defaulters"/>
         
         <DefaultersPagination 
         :pagination="pagination"
         @handle-pagination-update="handlePaginationUpdate"/>
       </template>
+
+      <Modal v-if="isModalOpen && defaulterInfo" @handle-close-modal="closeModal">
+        <DefaulterForm :defaulterName="defaulterInfo.name" :articleInfo="defaulterArticleSelected"/>
+        <div class="divider-modal"></div>
+        <DefaulterArticlesList :articles="defaulterArticles" @handle-edit-article="handleEditArticle" @handle-delete-article="handleDeleteArticle"/>
+        <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
+      </Modal>
     </main>
   </section>
 </template>

@@ -1,7 +1,7 @@
 <template>
     <h2 v-if="defaulters.length === 0">No hay morosos 🥳</h2>
     <ul v-else class="defaulters-list">
-        <li v-for="({id, name, debt_balance, discount_balance, total_balance}, index) in defaulters" :key="index" class="defaulters-list-item">
+        <li v-for="({id, name, total_balance}, index) in defaulters" :key="index" class="defaulters-list-item">
           <button type="button" @click="(event) => handleViewDefaulter(id, event)" class="defaulters-list-item__button">
             <span class="defaulter-name">{{name}}</span>  
             <span class="defaulter-balance" 
@@ -13,60 +13,19 @@
           </button>
         </li>
     </ul>
-    <Modal v-if="isModalOpen && defaulterInfo" @handle-close-modal="closeModal">
-      <DefaulterForm :defaulterName="defaulterInfo.name" :articleInfo="defaulterArticleSelected"/>
-      <div class="divider-modal"></div>
-      <DefaulterArticlesList :articles="defaulterArticles" @handle-edit-article="handleEditArticle" @handle-delete-article="handleDeleteArticle"/>
-      <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
-    </Modal>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Modal from './Modal.vue';
-import DefaulterForm from './DefaulterForm.vue';
-import DefaulterArticlesList from './DefaulterArticlesList.vue';
-import DefaulterBalancesList from './DefaulterBalancesList.vue';
-import useDefaulters from '../composables/useDefaulters';
 
-const { getDefaulterInfoById, getItemsOfDefaulterById } = useDefaulters()
+  const props = defineProps({
+    defaulters: Array,
+  })
 
-const props = defineProps({
-  defaulters: Array,
-})
+  const emits = defineEmits(['handle-open-modal'])
 
-const defaulterInfo = ref(null)
-const defaulterArticles = ref([])
-const defaulterArticleSelected = ref(null)
-const isModalOpen = ref(false)
-
-const closeModal = () => { 
-  isModalOpen.value = false
-  defaulterInfo.value = null
-  defaulterArticles.value = []
-  defaulterArticleSelected.value = null
-}
-
-const handleViewDefaulter = async(defaulterId, event) => {  
-  isModalOpen.value = true
-  defaulterInfo.value = await getDefaulterInfoById(defaulterId)
-  defaulterArticles.value = await getItemsOfDefaulterById(defaulterId)
-}
-
-const handleEditArticle = (indexArticleSelected) => { 
-  console.log('EDIT executed', indexArticleSelected); 
-  defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
-}
-const handleDeleteArticle = (indexArticleSelected) => { 
-  console.log('DELETE executed', indexArticleSelected); 
-  defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
-  const confirmDeleteArtice = confirm(`¿Esta seguro de eliminar '${defaulterArticleSelected.value.item_name} $${defaulterArticleSelected.value.unit_price}'?`)
-
-  if(confirmDeleteArtice) {
-    defaulterArticles.value = defaulterArticles.value.toSpliced(indexArticleSelected, 1)
-    defaulterArticleSelected.value = null
+  const handleViewDefaulter = async(defaulterId, event) => {  
+    emits('handle-open-modal', { defaulterId })
   }
-}
 </script>
 
 <style  scoped>

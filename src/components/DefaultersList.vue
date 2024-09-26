@@ -21,10 +21,10 @@
     defaulters: Array,
   })
 
-  const emits = defineEmits(['handle-open-modal'])
+  const emits = defineEmits(['handle-click-defaulter-list'])
 
   const handleViewDefaulter = async(defaulterId, event) => {  
-    emits('handle-open-modal', { defaulterId })
+    emits('handle-click-defaulter-list', { defaulterId })
   }
 </script>
 

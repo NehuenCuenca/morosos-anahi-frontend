@@ -14,7 +14,7 @@
     import { computed, ref } from 'vue';
     import useDefaulters from '../composables/useDefaulters';
 
-    const emits = defineEmits(['handle-open-modal'])
+    const emits = defineEmits(['handle-submit-search-defaulter'])
 
     const defaultersNames = ref([])
     const nameFromInput = ref('')
@@ -43,7 +43,7 @@
             return
         }
 
-        emits('handle-open-modal', { defaulterId: defaulterFound.id })        
+        emits('handle-submit-search-defaulter', { defaulterId: defaulterFound.id })        
     }
 </script>
 

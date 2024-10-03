@@ -40,11 +40,54 @@ const useDefaulters = () => {
             console.error("EXPLOTO ESTO --->: ", error);
         }
     }
+
+    const createOrUpdateDefaulter = async(defaulterId, defaulterRecord) => {
+      if(defaulterId === -1){ // when CREATING...
+        try {
+          const response = await instance.post('/defaulters', defaulterRecord);
+          return response
+        } catch (error) {
+          console.error("EXPLOTO ESTO --->: ", error);
+          return error
+        }
+      } else { // when UPDATING...
+        try {
+          const response = await instance.put(`/defaulters/${defaulterId}`, defaulterRecord);
+          return response
+        } catch (error) {
+          console.error("EXPLOTO ESTO --->: ", error);
+          return error
+        }
+      }
+    };
+
+    const createOrUpdateItem = async(itemRecord) => {
+      const { item_id } = itemRecord
+      if(item_id === -1){ // when CREATING...
+        try {
+          const response = await instance.post('/items', itemRecord);
+          return response
+        } catch (error) {
+          console.error("EXPLOTO ESTO --->: ", error);
+          return error
+        }
+      } else { // when UPDATING...
+        try {
+          const response = await instance.put(`/items/${item_id}`, itemRecord);
+          return response
+        } catch (error) {
+          console.error("EXPLOTO ESTO --->: ", error);
+          return error
+        }
+      }
+    };
     
     return {
         getAllDefaulters,
         getDefaulterInfoById,
-        getItemsOfDefaulterById
+        getItemsOfDefaulterById,
+        createOrUpdateDefaulter,
+        createOrUpdateItem
     };
   };
   

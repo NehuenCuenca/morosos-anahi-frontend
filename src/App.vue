@@ -100,6 +100,20 @@
     defaulterArticles.value = []
     defaulterArticleSelected.value = null
   }
+
+  const updateLocalDefaulter = async({responseIsGood, defaulter}) => { 
+    if( userAction.value === 'C' ) { 
+      closeModal() 
+      userAction.value = 'RU'
+    }
+    
+    defaulterInfo.value = defaulter
+    defaulterArticles.value = await getItemsOfDefaulterById(defaulter.id)
+  }
+
+  const cleanArticleSelected = () => { 
+    defaulterArticleSelected.value = null
+  }
 </script>
 
 <template>
@@ -118,10 +132,7 @@
         </button>
 
         <Modal :userAction="userAction" v-if="userAction.includes('C')" @handle-close-modal="closeModal">
-          <DefaulterForm />
-          <div class="divider-modal"></div>
-          <DefaulterArticlesList />
-          <DefaulterBalancesList :debt_balance="0" :discount_balance="0" :total_balance="0"/>
+          <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :articleInfo="null" @handle-submit-form="updateLocalDefaulter" @clean-article-selected="cleanArticleSelected"/>
         </Modal>
 
         <DefaulterSearchForm @handle-submit-search-defaulter="readOrUpdateDefaulter"/>
@@ -130,14 +141,12 @@
       <DefaultersFilters :orderBy="orderBy" @handle-order-update="handleOrderUpdate"/>
       
       <template v-if="defaulters.length > 0">
-
         <DefaultersList @handle-click-defaulter-list="readOrUpdateDefaulter" :defaulters="defaulters"/>
-        
         <DefaultersPagination :pagination="pagination" @handle-pagination-update="handlePaginationUpdate"/>
       </template>
 
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo" @handle-close-modal="closeModal">
-        <DefaulterForm :defaulterName="defaulterInfo.name" :articleInfo="defaulterArticleSelected"/>
+        <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :articleInfo="defaulterArticleSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-article="cleanArticleSelected"/>
         <div class="divider-modal"></div>
         <DefaulterArticlesList :articles="defaulterArticles" @handle-edit-article="handleEditArticle" @handle-delete-article="handleDeleteArticle"/>
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>

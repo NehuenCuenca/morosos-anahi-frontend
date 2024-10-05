@@ -1,7 +1,7 @@
 <template>
     <ul class="articles-list">
-        <li v-for="({unit_price, quantity, name}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
-            <span class="price-detail-tag">${{unit_price * quantity}} {{name}}</span>
+        <li v-for="({unit_price, quantity, name, was_paid}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
+            <span class="price-detail-tag" :class="(Boolean(was_paid)) ? 'was-paid': ''">${{unit_price * quantity}} {{name}}</span>
             <button class="edit-tag" @click="$emit('handleEditArticle', indexArticle)">
                 <i class='bx bx-edit bx-sm'></i>
             </button>
@@ -42,5 +42,9 @@
 .edit-tag,
 .delete-tag{
     color: var(--color-titles);
+}
+
+.was-paid{
+    text-decoration: line-through;
 }
 </style>

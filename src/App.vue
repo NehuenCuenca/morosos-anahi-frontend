@@ -48,7 +48,8 @@
   const { 
     getAllDefaulters, 
     getDefaulterInfoById,
-    getItemsOfDefaulterById
+    getItemsOfDefaulterById,
+    deleteItem
   } = useDefaulters()
 
   onMounted( async() => {
@@ -84,14 +85,18 @@
     defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
   }
 
-  const handleDeleteArticle = (indexArticleSelected) => { 
+  const handleDeleteArticle = async(indexArticleSelected) => { 
     console.log('DELETE executed', indexArticleSelected); 
     defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
-    const confirmDeleteArtice = confirm(`¿Esta seguro de eliminar '${defaulterArticleSelected.value.item_name} $${defaulterArticleSelected.value.unit_price}'?`)
+    const { name, quantity, unit_price, was_paid } = defaulterArticleSelected.value
+    const crossOutOrDebtText = (!!was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
+    const confirmDeleteArtice = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
 
     if(confirmDeleteArtice) {
-      defaulterArticles.value = defaulterArticles.value.toSpliced(indexArticleSelected, 1)
-      defaulterArticleSelected.value = null
+      const deletedItemResponse = await deleteItem(defaulterArticleSelected.value.id)
+
+      defaulterInfo.value = deletedItemResponse.data.defaulter
+      defaulterArticles.value = deletedItemResponse.data.defaulter.items
     }
   }
 

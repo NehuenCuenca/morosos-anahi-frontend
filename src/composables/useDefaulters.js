@@ -81,13 +81,24 @@ const useDefaulters = () => {
         }
       }
     };
+
+    const deleteItem = async(item_id) => {
+      try {
+        const response = await instance.delete(`/items/${item_id}`);
+        return response
+      } catch (error) {
+        console.error("EXPLOTO ESTO --->: ", error);
+        return error
+      }
+    };
     
     return {
         getAllDefaulters,
         getDefaulterInfoById,
         getItemsOfDefaulterById,
         createOrUpdateDefaulter,
-        createOrUpdateItem
+        createOrUpdateItem,
+        deleteItem
     };
   };
   

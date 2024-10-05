@@ -228,6 +228,7 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
 }
 .add-defaulter-button{
   background-color: var(--color-titles);
@@ -244,36 +245,7 @@
   font: normal normal normal 1.5rem var(--display-font);
 }
 
-.search-defaulter-form{
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.search-defaulter-form__input {
-  background-color: var(--input-text-bg);
-  border-radius: 25px;
-  padding: .5rem 1rem;
-  color: var(--color-bg);
-  box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.5);
-  border: none;
-  outline: none;
-}
 
-.search-defaulter-form__input{
-  font: normal normal normal 1.5rem var(--display-font);
-  position: relative;
-}
-
-.search-defaulter-form__input::placeholder{
-  font: normal normal normal 1.5rem var(--display-font);
-  color: whitesmoke;
-}
-
-.search-defaulter-form__submit-button{
-  color: whitesmoke;
-  position: absolute;
-  right: .5rem;
-}
 
 .divider-modal{
   height: 2px;

@@ -87,16 +87,18 @@
 
   const handleDeleteArticle = async(indexArticleSelected) => { 
     console.log('DELETE executed', indexArticleSelected); 
-    defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
-    const { name, quantity, unit_price, was_paid } = defaulterArticleSelected.value
-    const crossOutOrDebtText = (!!was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
+    // defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
+    const articleSelected = defaulterArticles.value[indexArticleSelected]
+    const { name, quantity, unit_price, was_paid } = articleSelected
+    const crossOutOrDebtText = (was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
     const confirmDeleteArtice = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
 
     if(confirmDeleteArtice) {
-      const deletedItemResponse = await deleteItem(defaulterArticleSelected.value.id)
-
-      defaulterInfo.value = deletedItemResponse.data.defaulter
-      defaulterArticles.value = deletedItemResponse.data.defaulter.items
+      const deletedItemResponse = await deleteItem(articleSelected.id)
+      const { defaulter, item_id } = deletedItemResponse.data
+      defaulterInfo.value = defaulter
+      defaulterArticles.value = defaulter.items
+      // defaulterArticleSelected.value = defaulter.items.find(({id}) => id === item_id)
     }
   }
 

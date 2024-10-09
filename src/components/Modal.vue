@@ -26,7 +26,7 @@
     place-items: center;
 }
 .modal-content{
-    width: 60%;
+    width: 70%;
     min-height: 300px;
     max-height: 95%;
     padding: 1.5rem;

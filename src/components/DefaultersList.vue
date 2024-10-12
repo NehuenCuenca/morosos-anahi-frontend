@@ -1,6 +1,7 @@
 <template>
-    <h2 v-if="defaulters.length === 0">No hay morosos 🥳</h2>
-    <ul v-else class="defaulters-list">
+    <!-- <h2 v-if="defaulters.length === 0">No hay morosos 🥳</h2> -->
+    <!-- <ul v-else class="defaulters-list"> -->
+    <ul class="defaulters-list">
         <li v-for="({id, name, total_balance}, index) in defaulters" :key="index" class="defaulters-list-item">
           <button type="button" @click="(event) => handleViewDefaulter(id, event)" class="defaulters-list-item__button">
             <span class="defaulter-name">{{name}}</span>  
@@ -8,7 +9,7 @@
                   :class="total_balance > 0 
                           ? 'debt_balance' 
                           : 'discount_balance'">
-              ${{total_balance}}
+              ${{addThousandthPoint(total_balance)}}
             </span>
           </button>
         </li>
@@ -16,6 +17,7 @@
 </template>
 
 <script setup>
+  import { addThousandthPoint } from '../helpers/Balances';
 
   const props = defineProps({
     defaulters: Array,

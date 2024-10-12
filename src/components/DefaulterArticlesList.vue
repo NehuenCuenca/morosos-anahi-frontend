@@ -1,18 +1,20 @@
 <template>
     <ul class="articles-list">
         <li v-for="({unit_price, quantity, name, was_paid}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
-            <span class="price-detail-tag" :class="(Boolean(was_paid)) ? 'was-paid': ''">${{unit_price * quantity}} {{name}}</span>
+            <span class="price-detail-tag" :class="(Boolean(was_paid)) ? 'was-paid': ''">${{addThousandthPoint((unit_price * quantity))}} {{name}}</span>
             <button class="edit-tag" @click="$emit('handleEditArticle', indexArticle)">
-                <i class='bx bx-edit bx-sm'></i>
+                <i class='bx bx-edit bx-xs'></i>
             </button>
             <button class="delete-tag" @click="$emit('handleDeleteArticle', indexArticle)">
-                <i class='bx bx-trash bx-sm'></i>
+                <i class='bx bx-trash bx-xs'></i>
             </button>
         </li>
     </ul>
 </template>
 
 <script setup>
+    import { addThousandthPoint } from '../helpers/Balances';
+
     const props = defineProps({
         articles: Array,
     })
@@ -28,7 +30,7 @@
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 1.5rem;
+  gap: .5rem;
   overflow-y: auto;
 }
 

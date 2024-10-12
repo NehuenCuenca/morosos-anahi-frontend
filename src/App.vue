@@ -25,6 +25,8 @@
     return (userAction.value.length === 0) ? false :  
     userAction.value.split().some( initial => 'CRUD'.includes(initial))
   } ) 
+  const errorWhenLoadAllDefaulters = ref({bool: false, message: ''})
+  const errorWhenLoadSingleDefaulter = ref({bool: false, message: ''})
   
   const handleCreateDefaulter = (event) => { 
     userAction.value = 'C'.toUpperCase()
@@ -53,22 +55,23 @@
   } = useDefaulters()
 
   onMounted( async() => {
-    const resp = await setNewDefaulters({ paginatedBy: 12, page: 1 })
+    await setNewDefaulters({ paginatedBy: 12, page: 1 })
   })
 
   const setNewDefaulters = async({paginatedBy, page=1, orderByLastestRecent = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
-    const defaultersPromise = await getAllDefaulters({
-      paginatedBy,
-      page,
-      orderByLastestRecent,
-      orderByAlphabet,
-      orderByLargestDebtor,
-    })
+    const getAllDefaultersResponse = await getAllDefaulters({ paginatedBy, page, orderByLastestRecent, orderByAlphabet, orderByLargestDebtor, })
+    const responseIsGood = getAllDefaultersResponse.statusText === 'OK'
+    if(!responseIsGood){
+      errorWhenLoadAllDefaulters.value = { bool: true, message: `Error al cargar los morosos: ${getAllDefaultersResponse.message}` }
+      pagination.value = null
+      defaulters.value = []
+      return
+    }
 
-    const { data, ...paginationFields } = defaultersPromise.defaulters
-
+    const { data, ...paginationFields } = getAllDefaultersResponse.data.defaulters
     pagination.value = paginationFields
     defaulters.value = data
+    errorWhenLoadAllDefaulters.value = { bool: false, message: '' }
   }
 
   const readOrUpdateDefaulter = async({ defaulterId }) => {
@@ -76,8 +79,23 @@
 
     userAction.value = 'RU'.toUpperCase()
     isModalOpen.value = true
-    defaulterInfo.value = await getDefaulterInfoById(defaulterId)
-    defaulterArticles.value = await getItemsOfDefaulterById(defaulterId)
+    
+    const getDefaulterInfoResponse = await getDefaulterInfoById(defaulterId)
+
+    const responseIsGood = getDefaulterInfoResponse.statusText === 'OK'
+    if( !responseIsGood  ){
+      const errorMessage = `Error al traer la informacion del moroso y sus items: ${getDefaulterInfoResponse.message}. Intentalo de nuevo mas tarde.`
+      console.error(errorMessage);
+      alert(errorMessage);
+      errorWhenLoadSingleDefaulter.value = { bool: true, message: errorMessage};
+      closeModal()
+      return
+    }
+
+    errorWhenLoadSingleDefaulter.value = { bool: false, message:`` };
+    const { items, ...restInfo } = getDefaulterInfoResponse.data.defaulter
+    defaulterInfo.value = restInfo
+    defaulterArticles.value = items
   }
 
   const handleEditArticle = (indexArticleSelected) => { 
@@ -87,19 +105,25 @@
 
   const handleDeleteArticle = async(indexArticleSelected) => { 
     console.log('DELETE executed', indexArticleSelected); 
-    // defaulterArticleSelected.value = defaulterArticles.value[indexArticleSelected]
     const articleSelected = defaulterArticles.value[indexArticleSelected]
     const { name, quantity, unit_price, was_paid } = articleSelected
     const crossOutOrDebtText = (was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
-    const confirmDeleteArtice = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
+    const confirmDeleteArticle = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
 
-    if(confirmDeleteArtice) {
-      const deletedItemResponse = await deleteItem(articleSelected.id)
-      const { defaulter, item_id } = deletedItemResponse.data
-      defaulterInfo.value = defaulter
-      defaulterArticles.value = defaulter.items
-      // defaulterArticleSelected.value = defaulter.items.find(({id}) => id === item_id)
+    if(!confirmDeleteArticle) return
+
+    const deletedItemResponse = await deleteItem(articleSelected.id)
+    const responseIsGood = deletedItemResponse.statusText === 'OK'
+    if(!responseIsGood){
+      const errorMessage = `Error al tratar de ${crossOutOrDebtText} el articulo ${name}: ${deletedItemResponse.message}. Intentalo de nuevo mas tarde.`
+      console.error(errorMessage);
+      alert(errorMessage);
+      return
     }
+
+    const { items, ...restInfo } = deletedItemResponse.data.defaulter
+    defaulterInfo.value = restInfo
+    defaulterArticles.value = items
   }
 
   const cleanPreviousDefaulterInfo = () => { 
@@ -113,9 +137,12 @@
       closeModal() 
       userAction.value = 'RU'
     }
+    const { items, ...restInfo } = defaulter
     
-    defaulterInfo.value = defaulter
-    defaulterArticles.value = await getItemsOfDefaulterById(defaulter.id)
+    defaulterInfo.value = restInfo
+    defaulterArticles.value = items
+
+    await setNewDefaulters({ paginatedBy: 12, page: 1 })
   }
 
   const cleanArticleSelected = () => { 
@@ -147,17 +174,19 @@
 
       <DefaultersFilters :orderBy="orderBy" @handle-order-update="handleOrderUpdate"/>
       
-      <template v-if="defaulters.length > 0">
+      <template v-if="!errorWhenLoadAllDefaulters.bool && defaulters.length > 0">
         <DefaultersList @handle-click-defaulter-list="readOrUpdateDefaulter" :defaulters="defaulters"/>
         <DefaultersPagination :pagination="pagination" @handle-pagination-update="handlePaginationUpdate"/>
       </template>
+      <span class="msg-error-after-load" v-else>{{ errorWhenLoadAllDefaulters.message }}</span>
 
-      <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo" @handle-close-modal="closeModal">
+      <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal">
         <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :articleInfo="defaulterArticleSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-article="cleanArticleSelected"/>
         <div class="divider-modal"></div>
         <DefaulterArticlesList :articles="defaulterArticles" @handle-edit-article="handleEditArticle" @handle-delete-article="handleDeleteArticle"/>
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
+
     </main>
   </section>
 </template>
@@ -247,8 +276,6 @@
   font: normal normal normal 1.5rem var(--display-font);
 }
 
-
-
 .divider-modal{
   height: 2px;
   width: 90%;
@@ -262,5 +289,13 @@
 }
 .debt_balance{
   color: var(--debt_balance);
+}
+
+.msg-error-after-load{
+  font: normal normal 400 1.5rem var(--display-font);
+  color: var(--debt_balance);
+  border: 2px dashed var(--debt_balance);
+  padding: .5rem;
+  border-radius: 10px;
 }
 </style>

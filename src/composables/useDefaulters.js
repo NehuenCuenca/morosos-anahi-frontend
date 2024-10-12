@@ -17,27 +17,30 @@ const useDefaulters = () => {
             ...callParams
           }
         });
-        return response.data
+        return response
       } catch (error) {
         console.error("EXPLOTO ESTO --->: ", error);
+        return error
       }
     };   
     
     const getDefaulterInfoById = async(defaulterId) => { 
         try {
           const response = await instance.get(`/defaulters/${defaulterId}`);
-          return response.data.defaulter
+          return response
         } catch (error) {
             console.error("EXPLOTO ESTO --->: ", error);
+            return error
         }
     }
     
     const getItemsOfDefaulterById = async(defaulterId) => { 
         try {
           const response = await instance.get(`/defaulters/${defaulterId}/items`);
-          return response.data.items
+          return response
         } catch (error) {
-            console.error("EXPLOTO ESTO --->: ", error);
+          console.error("EXPLOTO ESTO --->: ", error);
+          return error
         }
     }
 

@@ -15,6 +15,7 @@
   const defaulters = ref([])
   const pagination = ref(null)
   const orderBy = ref({})
+  const paramsUsedToGetDefaulters = ref({})
   
   const isModalOpen = ref(false)
   const defaulterInfo = ref(null)
@@ -33,12 +34,14 @@
   }
   
   const handlePaginationUpdate = async(newPage) => {
-    await setNewDefaulters({ paginatedBy: 12, page: newPage, ...orderBy.value })
+    paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: newPage, ...orderBy.value }
+    await setNewDefaulters(paramsUsedToGetDefaulters.value)
   }
 
   const handleOrderUpdate = async(newOrder) => {
     orderBy.value = newOrder
-    await setNewDefaulters({ paginatedBy: 12, page: 1, ...newOrder })
+    paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1, ...newOrder }
+    await setNewDefaulters(paramsUsedToGetDefaulters.value)
   }
 
   const closeModal = () => { 
@@ -55,7 +58,8 @@
   } = useDefaulters()
 
   onMounted( async() => {
-    await setNewDefaulters({ paginatedBy: 12, page: 1 })
+    paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1 }
+    await setNewDefaulters(paramsUsedToGetDefaulters.value)
   })
 
   const setNewDefaulters = async({paginatedBy, page=1, orderByLastestRecent = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
@@ -142,7 +146,7 @@
     defaulterInfo.value = restInfo
     defaulterArticles.value = items
 
-    await setNewDefaulters({ paginatedBy: 12, page: 1 })
+    await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
   const cleanArticleSelected = () => { 

@@ -27,7 +27,7 @@
 
     const handleClickInputElement = async(event) => { 
         const defaultersPromise = await getAllDefaulters({ orderByAlphabet: true })
-        const { data } = defaultersPromise.defaulters
+        const { data } = defaultersPromise.data.defaulters
         defaultersNames.value = data.map(({id, name}) => ({ id, name: name.toLowerCase() }))
     }
 

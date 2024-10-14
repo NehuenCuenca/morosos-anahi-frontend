@@ -128,6 +128,8 @@
     const { items, ...restInfo } = deletedItemResponse.data.defaulter
     defaulterInfo.value = restInfo
     defaulterArticles.value = items
+
+    await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
   const cleanPreviousDefaulterInfo = () => { 

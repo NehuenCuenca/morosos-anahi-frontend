@@ -43,9 +43,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, onUpdated } from 'vue';
-import useDefaulters from '../composables/useDefaulters';
-import { formatDate } from '../helpers/Dates.js';
+  import { ref, onMounted, nextTick, onUpdated } from 'vue';
+  import useDefaulters from '../composables/useDefaulters';
+  import { formatDate } from '../helpers/Dates.js';
 
   const emits = defineEmits(['handle-submit-form', 'handle-clean-article'])
 
@@ -105,126 +105,125 @@ import { formatDate } from '../helpers/Dates.js';
     }    
 
     if( currentCRUDOperation === 'C' ){  // 1ER CASO: GUARDAR MOROSO (C)
-    if (falsyFields.length > 0) { 
-      showValidationErrors(falsyFields) 
-      reFillForm(sanitizedFields)
-      return
-    }
-
-    console.log('GUARDAR MOROSO (C)', suitableFieldsToSend);
-    const newDefaulterResponse = await createOrUpdateDefaulter(-1, suitableFieldsToSend)
-    console.log(newDefaulterResponse);
-    const responseIsGood = newDefaulterResponse.statusText === 'OK'
-    if (!responseIsGood) {
-      const errorMessage = `Error al tratar de guardar un nuevo moroso: ${newDefaulterResponse.message}.`
-      console.error(errorMessage)
-      alert(errorMessage)
-      return
-    }
-
-    emits('handle-submit-form', { responseIsGood, defaulter: newDefaulterResponse.data.defaulter })
-    return
-  }
-
-  if (currentCRUDOperation.includes('U')) {
-    if (
-        suitableFieldsToSend.name !== props.defaulterInfo.name 
-        && suitableFieldsToSend.name.length > 0 
-      ) { // 2DO CASO: EDITAR MOROSO (RU)
-
-      console.log('EDITAR MOROSO (RU)');
-      const updatedDefaulterResponse = await createOrUpdateDefaulter(props.defaulterInfo.id, suitableFieldsToSend)
-      const responseIsGood = updatedDefaulterResponse.statusText === 'OK'
-      if (!responseIsGood) {
-        const errorMessage = `Error al tratar de editar un nuevo moroso: ${updatedDefaulterResponse.message}.`
-        console.error(errorMessage)
-        alert(errorMessage)
-        return
-      }
-
-      emits('handle-submit-form', { responseIsGood, defaulter: updatedDefaulterResponse.data.defaulter })
-      resetItemsFields()
-      return
-    }
-
-    if (!props.articleInfo) { // 3ER CASO: GUARDAR ITEM (RU)
       if (falsyFields.length > 0) { 
         showValidationErrors(falsyFields) 
         reFillForm(sanitizedFields)
         return
       }
 
-      console.log('GUARDAR ITEM (RU)');
-      const newItemResponse = await createOrUpdateItem({
-        'defaulter_id': props.defaulterInfo.id,
-        'item_id': -1, ...suitableFieldsToSend.items[0]
-      })
-      const responseIsGood = newItemResponse.statusText === 'OK'
+      console.log('GUARDAR MOROSO (C)', suitableFieldsToSend);
+      const newDefaulterResponse = await createOrUpdateDefaulter(-1, suitableFieldsToSend)
+      console.log(newDefaulterResponse);
+      const responseIsGood = newDefaulterResponse.statusText === 'OK'
       if (!responseIsGood) {
-        const errorMessage = `Error al tratar de guardar un nuevo articulo: ${newItemResponse.message}.`
+        const errorMessage = `Error al tratar de guardar un nuevo moroso: ${newDefaulterResponse.message}.`
         console.error(errorMessage)
         alert(errorMessage)
         return
       }
 
-      emits('handle-submit-form', { responseIsGood, defaulter: newItemResponse.data.defaulter })
+      emits('handle-submit-form', { responseIsGood, defaulter: newDefaulterResponse.data.defaulter })
+      return
+    }
+
+    if (currentCRUDOperation.includes('U')) {
+      if (
+          suitableFieldsToSend.name !== props.defaulterInfo.name 
+          && suitableFieldsToSend.name.length > 0 
+        ) { // 2DO CASO: EDITAR MOROSO (RU)
+
+        console.log('EDITAR MOROSO (RU)');
+        const updatedDefaulterResponse = await createOrUpdateDefaulter(props.defaulterInfo.id, suitableFieldsToSend)
+        const responseIsGood = updatedDefaulterResponse.statusText === 'OK'
+        if (!responseIsGood) {
+          const errorMessage = `Error al tratar de editar un nuevo moroso: ${updatedDefaulterResponse.message}.`
+          console.error(errorMessage)
+          alert(errorMessage)
+          return
+        }
+
+        emits('handle-submit-form', { responseIsGood, defaulter: updatedDefaulterResponse.data.defaulter })
+        resetItemsFields()
+        return
+      }
+
+      if (!props.articleInfo) { // 3ER CASO: GUARDAR ITEM (RU)
+        if (falsyFields.length > 0) { 
+          showValidationErrors(falsyFields) 
+          reFillForm(sanitizedFields)
+          return
+        }
+
+        console.log('GUARDAR ITEM (RU)');
+        const newItemResponse = await createOrUpdateItem({
+          'defaulter_id': props.defaulterInfo.id,
+          'item_id': -1, ...suitableFieldsToSend.items[0]
+        })
+        const responseIsGood = newItemResponse.statusText === 'OK'
+        if (!responseIsGood) {
+          const errorMessage = `Error al tratar de guardar un nuevo articulo: ${newItemResponse.message}.`
+          console.error(errorMessage)
+          alert(errorMessage)
+          return
+        }
+
+        emits('handle-submit-form', { responseIsGood, defaulter: newItemResponse.data.defaulter })
+        resetItemsFields()
+        return
+      }
+
+      if (falsyFields.length > 0) { 
+        showValidationErrors(falsyFields) 
+        reFillForm(sanitizedFields)
+        return
+      }
+
+      // 4TO CASO: EDITAR ITEM (RU)
+      console.log('EDITAR ITEM (RU)');
+      const updatedItemResponse = await createOrUpdateItem({
+        'defaulter_id': props.defaulterInfo.id,
+        'item_id': props.articleInfo?.id,
+        ...suitableFieldsToSend.items[0]
+      })
+
+      const responseIsGood = updatedItemResponse.statusText === 'OK'
+      if (!responseIsGood) {
+        const errorMessage = `Error al tratar de editar un articulo: ${updatedItemResponse.message}.`
+        console.error(errorMessage)
+        alert(errorMessage)
+        return
+      }
+
+      emits('handle-submit-form', { responseIsGood, defaulter: updatedItemResponse.data.defaulter })
       resetItemsFields()
       return
     }
-
-    if (falsyFields.length > 0) { 
-      showValidationErrors(falsyFields) 
-      reFillForm(sanitizedFields)
-      return
-    }
-
-    // 4TO CASO: EDITAR ITEM (RU)
-    console.log('EDITAR ITEM (RU)');
-    const updatedItemResponse = await createOrUpdateItem({
-      'defaulter_id': props.defaulterInfo.id,
-      'item_id': props.articleInfo?.id,
-      ...suitableFieldsToSend.items[0]
-    })
-
-    const responseIsGood = updatedItemResponse.statusText === 'OK'
-    if (!responseIsGood) {
-      const errorMessage = `Error al tratar de editar un articulo: ${updatedItemResponse.message}.`
-      console.error(errorMessage)
-      alert(errorMessage)
-      return
-    }
-
-    emits('handle-submit-form', { responseIsGood, defaulter: updatedItemResponse.data.defaulter })
-    resetItemsFields()
-    return
   }
 
-}
+  const showValidationErrors = (fieldsWithErrors) => { 
+    const concatenatedFields = fieldsWithErrors.map(field => field.toUpperCase().replaceAll('_', ' ')).join(', ')
+    console.error(`No se envió el formulario ya que hay campos obligatorios que estan vacios: ${concatenatedFields}.`)
+    validationError.value = `Hay campos obligatorios que estan vacios: ${concatenatedFields}.`  
+  }
 
-const showValidationErrors = (fieldsWithErrors) => { 
-  const concatenatedFields = fieldsWithErrors.map(field => field.toUpperCase().replaceAll('_', ' ')).join(', ')
-  console.error(`No se envió el formulario ya que hay campos obligatorios que estan vacios: ${concatenatedFields}.`)
-  validationError.value = `Hay campos obligatorios que estan vacios: ${concatenatedFields}.`  
-}
-
-const reFillForm = (sanitizedFields) => { 
-  copyAfterSubmit.value = { ...sanitizedFields }
-  if(!props.articleInfo){ setTodayOnDateInput()}
-}
+  const reFillForm = (sanitizedFields) => { 
+    copyAfterSubmit.value = { ...sanitizedFields }
+    if(!props.articleInfo){ setTodayOnDateInput()}
+  }
 
 
-const resetItemsFields = (event) => {
-  emits('handle-clean-article')
-  validationError.value = ``
-  copyAfterSubmit.value = (copyAfterSubmit.value) ? { Nombre_moroso: copyAfterSubmit?.value.Nombre_moroso } : null
-  const defaulterNameInput = rootFormElement.value.querySelector('.name-defaulter-input')
-  const nameBeforeReset = defaulterNameInput.value
-  rootFormElement.value.reset()
+  const resetItemsFields = (event) => {
+    emits('handle-clean-article')
+    validationError.value = ``
+    copyAfterSubmit.value = (copyAfterSubmit.value) ? { Nombre_moroso: copyAfterSubmit?.value.Nombre_moroso } : null
+    const defaulterNameInput = rootFormElement.value.querySelector('.name-defaulter-input')
+    const nameBeforeReset = defaulterNameInput.value
+    rootFormElement.value.reset()
 
-  defaulterNameInput.value = nameBeforeReset || ''
+    defaulterNameInput.value = nameBeforeReset || ''
 
-  nextTick(() => { setTodayOnDateInput() })
-}
+    nextTick(() => { setTodayOnDateInput() })
+  }
 </script>
 
 <style scoped>

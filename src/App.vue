@@ -39,6 +39,12 @@
   }
 
   const handleOrderUpdate = async(newOrder) => {
+    if(!newOrder) {
+      paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1 }
+      await setNewDefaulters(paramsUsedToGetDefaulters.value)
+      return
+    }
+
     orderBy.value = newOrder
     paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1, ...newOrder }
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
@@ -178,7 +184,7 @@
         <DefaulterSearchForm @handle-submit-search-defaulter="readOrUpdateDefaulter"/>
       </div>
 
-      <DefaultersFilters :orderBy="orderBy" @handle-order-update="handleOrderUpdate"/>
+      <DefaultersFilters @handle-order-update="handleOrderUpdate"/>
       
       <template v-if="!errorWhenLoadAllDefaulters.bool && defaulters.length > 0">
         <DefaultersList @handle-click-defaulter-list="readOrUpdateDefaulter" :defaulters="defaulters"/>

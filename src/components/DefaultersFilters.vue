@@ -1,42 +1,50 @@
 <template>
     <div class="filters-by">
         <span>Ordenar por:</span>
-        <button @click="setOrderBy('orderByAlphabet')" 
-          class="filters-by__filter-button" 
-          :class="(orderName === 'orderByAlphabet' && orderValue)? 'filters-by__filter-button_active':''">
-          Alfabeticamente
-        </button>
-        <span>-</span>
-        <button @click="setOrderBy('orderByLastestRecent')" 
-          class="filters-by__filter-button" 
-          :class="(orderName === 'orderByLastestRecent' && orderValue)? 'filters-by__filter-button_active':''">
-          Mas reciente
-        </button>
-        <span>-</span>
-        <button @click="setOrderBy('orderByLargestDebtor')" 
-          class="filters-by__filter-button" 
-          :class="(orderName === 'orderByLargestDebtor' && orderValue)? 'filters-by__filter-button_active':''">
-          Mayor deudor
-        </button>
+        <template v-for="({paramName, caption}, indexFilter) in filters" :key="indexFilter">
+          <DefaulterFilterButton 
+            :caption="caption" 
+            :is-active="activeFilter === paramName" 
+            @click="setOrderBy(indexFilter)"
+          />
+          <span v-if="indexFilter !== (filters.length-1)">-</span>
+        </template>
     </div>
 </template>
 
 <script setup>
 
-import { computed } from 'vue';
+  import DefaulterFilterButton from './DefaulterFilterButton.vue';
+  import { ref } from 'vue';
 
-  const props = defineProps({
-    orderBy: Object,
-  })
   const emits = defineEmits(['handle-order-update'])
 
-  const setOrderBy = (orderType) => { 
-    const toggleOrder = (orderName.value === orderType && orderValue.value)? false : true 
-    emits('handle-order-update', {[orderType]: toggleOrder})
+  const filters = ref([
+    {bool: false, caption: "Alfabeticamente", paramName: 'orderByAlphabet'},
+    {bool: false, caption: "Mas reciente", paramName: 'orderByLastestRecent'},
+    {bool: false, caption: "Mayor deudor", paramName: 'orderByLargestDebtor'},
+  ])
+
+  const activeFilter = ref('')
+
+  const setOrderBy = (clickedOrderIndex) => { 
+    const currentFilter = filters.value.find(({ bool }) => bool)
+    const clickedOrder = filters.value[clickedOrderIndex];
+
+    if(currentFilter === clickedOrder) {
+      currentFilter.bool = false
+      activeFilter.value = ''
+      emits('handle-order-update', null)
+      return
+    }
+
+    if(currentFilter) currentFilter.bool = false
+    clickedOrder.bool = !clickedOrder.bool
+    activeFilter.value = clickedOrder.paramName
+
+    emits('handle-order-update', {[clickedOrder.paramName]: clickedOrder.bool})
   }
 
-  const orderName  = computed(() => Object.keys(props.orderBy)[0])
-  const orderValue = computed(() => Object.values(props.orderBy)[0])
 </script>
 
 <style scoped>

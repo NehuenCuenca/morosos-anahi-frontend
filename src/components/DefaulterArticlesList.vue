@@ -22,7 +22,7 @@
 
 <style scoped>
 .articles-list{
-  min-height: 30vh;
+  min-height: 15vh;
   max-height: 40vh;
   background-color: var(--grey);
   border-radius: 25px;
@@ -48,5 +48,28 @@
 
 .was-paid{
     text-decoration: line-through;
+}
+
+@media (width >= 768px) {
+    .articles-list{
+        width: 95%;
+        margin: 0 auto;
+        flex-wrap: wrap;
+        gap: 1rem;
+        overflow-y: auto;
+    }
+
+    .articles-list-item{
+        font: normal normal normal 2rem var(--default-font);
+        gap: .5rem;
+    }
+}
+
+/* @media (width >= 1280px) {} */
+@media (width >= 1300px) {
+    .articles-list-item{
+        font: normal normal normal 1.7rem var(--default-font);
+        gap: .5rem;
+    }
 }
 </style>

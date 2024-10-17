@@ -15,7 +15,7 @@
 
 <style scoped>
 .modal-container{
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     z-index: 5;
@@ -26,10 +26,10 @@
     place-items: center;
 }
 .modal-content{
-    width: 70%;
-    min-height: 300px;
+    width: 90%;
+    min-height: 500px;
     max-height: 95%;
-    padding: 1.5rem;
+    padding: 1rem;
     background-color: var(--color-bg);
     border-radius: 25px;
     color: var(--color-font);

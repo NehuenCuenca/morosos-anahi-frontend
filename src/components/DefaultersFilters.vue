@@ -1,15 +1,17 @@
 <template>
-    <div class="filters-by">
-        <span>Ordenar por:</span>
-        <template v-for="({paramName, caption}, indexFilter) in filters" :key="indexFilter">
+  <div class="filters-content">
+    <h3 class="filters-indicator-text">Ordenar por:</h3>
+    <ul class="filters-by-list">
+        <li v-for="({paramName, caption}, indexFilter) in filters" :key="indexFilter">
           <DefaulterFilterButton 
             :caption="caption" 
             :is-active="activeFilter === paramName" 
             @click="setOrderBy(indexFilter)"
           />
-          <span v-if="indexFilter !== (filters.length-1)">-</span>
-        </template>
-    </div>
+          <!-- <span v-if="indexFilter !== (filters.length-1)">-</span> -->
+        </li>
+    </ul>
+  </div>
 </template>
 
 <script setup>
@@ -48,18 +50,57 @@
 </script>
 
 <style scoped>
-.filters-by{
-  align-self: flex-start;
-  font: normal normal normal 500 1.3rem var(--display-font);
+.filters-content{
+  width: 100%;
   display: flex;
-  gap: .5rem;
+  flex-direction: column;
+  align-items: center;
+}
+
+.filters-indicator-text{
+  font: normal normal normal 500 1.5rem var(--display-font);
+}
+.filters-by-list{
+  width: 90%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-self: center;
+  gap: 1rem;
 }
 .filters-by__filter-button{
-  font: normal normal normal 400 1.2rem var(--default-font);
+  font: normal normal normal 400 1.3rem var(--default-font);
   color: var(--color-font);
 }
 .filters-by__filter-button_active{
   text-decoration: underline;
   text-transform: uppercase;
+}
+
+@media (width >= 768px) {
+  .filters-indicator-text{
+    font: normal normal normal 500 2.2rem var(--display-font);
+  }
+  
+  .filters-by-list{
+    gap: .5rem;
+  }
+
+  .filters-by__filter-button{
+    font: normal normal normal 400 2rem var(--default-font);
+  }
+}
+@media (width >= 1280px) {
+  .filters-content{
+    width: 95%;
+  }
+  .filters-by-list{
+    width: 100%;
+  }
+
+  .filters-indicator-text{
+    align-self: start;
+  }
+  
 }
 </style>

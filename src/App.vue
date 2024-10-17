@@ -11,6 +11,7 @@
   import useDefaulters from './composables/useDefaulters';
   import DefaulterSearchForm from './components/DefaulterSearchForm.vue';
 
+  const customPaginatedBy = 9
 
   const defaulters = ref([])
   const pagination = ref(null)
@@ -34,19 +35,19 @@
   }
   
   const handlePaginationUpdate = async(newPage) => {
-    paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: newPage, ...orderBy.value }
+    paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: newPage, ...orderBy.value }
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
   }
 
   const handleOrderUpdate = async(newOrder) => {
     if(!newOrder) {
-      paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1 }
+      paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1 }
       await setNewDefaulters(paramsUsedToGetDefaulters.value)
       return
     }
 
     orderBy.value = newOrder
-    paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1, ...newOrder }
+    paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1, ...newOrder }
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
   }
 
@@ -64,7 +65,7 @@
   } = useDefaulters()
 
   onMounted( async() => {
-    paramsUsedToGetDefaulters.value = { paginatedBy: 12, page: 1 }
+    paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1 }
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
   })
 
@@ -164,9 +165,9 @@
 
 <template>
   <section class="principal-container">
-    <header class="principal-container__header">
+    <!-- <header class="principal-container__header">
       <Navbar />
-    </header>
+    </header> -->
     
     <main class="principal-container__content">
       <h1 class="content-title">Lista de morosos</h1>
@@ -205,60 +206,20 @@
 
 <style>
 
+body:has(.modal-container){
+  overflow: hidden;
+}
+
 .principal-container{
   width: 100%;
-  height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(50px, 250px) 1fr;
-  justify-items: start;
 }
-
-.principal-container > * {
-  height: 100vh;
-}
-
-.principal-container__header{
-  position: relative;
-  width: min-content;
-  background-color: var(--beige);
-  z-index: 1;
-  padding: .5rem;
-}
-
-
-.principal-container__header:has(.navbar_open){
-  border-radius: 0 25px 25px 0;
-  animation: slideInLeft .3s ease 0s 1 normal forwards;
-}
-
-.principal-container__header:has(.navbar_open) + .principal-container__content{
-  pointer-events: none;
-  background-color: var(--modal-fade-bg);
-  filter: blur(2px) brightness(0.4);
-}
-
 
 .principal-container__content{
-  margin-left: 50px;
-  padding: 1rem 1.5rem;
-  position: absolute;
-  width: calc(100% - 50px);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-}
-
-@keyframes slideInLeft {
-	0% {
-		opacity: 0;
-		transform: translateX(-250px);
-	}
-
-	100% {
-		opacity: 1;
-		transform: translateX(0);
-	}
 }
 
 .content-title{
@@ -270,9 +231,12 @@
 .add-and-search{
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
 }
+
 .add-defaulter-button{
   background-color: var(--color-titles);
   border-radius: 25px;
@@ -309,5 +273,57 @@
   border: 2px dashed var(--debt_balance);
   padding: .5rem;
   border-radius: 10px;
+}
+
+@media (width >= 768px) {
+  .principal-container__content{
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .content-title{
+    font: normal normal normal 3.5rem var(--display-font);
+  }
+
+  .add-and-search{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .add-defaulter-button{}
+  /* .add-defaulter-button__icon{} */
+
+  .add-defaulter-button__text{
+    font: normal normal normal 2.2rem var(--display-font);
+  }
+
+  .divider-modal{
+    height: 2px;
+    width: 90%;
+    background-color: var(--color-titles);
+    border-radius: 10px;
+    margin: 2rem auto;
+  }
+
+  .msg-error-after-load{
+    font: normal normal 400 1.5rem var(--display-font);
+    border: 2px dashed var(--debt_balance);
+    padding: .5rem;
+    border-radius: 10px;
+  }
+}
+
+@media (width >= 1280px) {
+
+  .add-and-search{
+    justify-content: space-around;
+  }
+
 }
 </style>

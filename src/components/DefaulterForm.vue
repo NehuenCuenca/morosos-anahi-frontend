@@ -19,7 +19,7 @@
     </div>
 
     <div class="field">
-      <label for="input-detail" class="field__label">Razón o detalle</label>
+      <label for="input-detail" class="field__label">Detalle</label>
       <input type="text" :value="copyAfterSubmit?.Detalle || articleInfo?.name" class="field__input" id="input-detail"
         name="Detalle" minlength="3" maxlength="40" placeholder="Nombre de producto">
     </div>
@@ -36,9 +36,9 @@
         name="Fue_pagado">
     </div>
 
+    <button type="button" @click="resetItemsFields" class="button-reset-item" title="Limpiar">Limpiar item</button>
     <button type="submit" class="submit-new-defaulter-button" title="Guardar">Guardar</button>
-    <button type="button" @click="resetItemsFields" class="reset-item-button" title="Limpiar">Limpiar item</button>
-    <span class="validation-error-msg">{{ validationError }}</span>
+    <span v-if="validationError.length > 0" class="validation-error-msg">{{ validationError }}</span>
   </form>
 </template>
 
@@ -233,23 +233,20 @@
   border-radius: 25px;
   padding: .5rem 1rem;
   color: var(--color-bg);
-  font: normal normal normal 1.1rem var(--display-font);
+  font: normal normal normal 1.3rem var(--display-font);
   box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.5);
   border: none;
   outline: none;
 }
 
 .defaulter-form {
-  width: 90%;
-  display: grid;
-  align-items: end;
-  grid-template-areas:
-    "input-name . . ."
-    "input-price input-quantity . reset-item-button"
-    "input-detail input-date input-was-paid button-submit-form"
-    "validation-msg validation-msg validation-msg validation-msg"
-  ;
-  gap: 1rem 0;
+  top: 2.5rem;
+  width: 95%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 1.5rem;
+  padding: 3rem 0 0 0;
 }
 
 .name-defaulter-input {
@@ -260,34 +257,34 @@
 .field {
   display: flex;
   flex-direction: column;
-  width: 70%;
+  justify-content: end;
+  width: clamp(120px, 45%, 260px);
 }
 
 .field__label {
-  font: normal normal normal 1.2rem var(--display-font);
+  font: normal normal normal 1.4rem var(--display-font);
+  line-height: 1.7rem;
 }
 
 .field__input_checkbox {
   accent-color: var(--color-font);
-  width: 1.5rem;
-  height: 1.5rem;
   border-radius: inherit;
   box-shadow: inherit;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .submit-new-defaulter-button {
-  grid-area: button-submit-form;
   background-color: var(--color-titles);
   border-radius: 25px;
   color: var(--color-bg);
-  font: normal normal normal 1.3rem var(--display-font);
+  font: normal normal normal 1.5rem var(--display-font);
   height: min-content;
   padding: .5rem 1rem;
-  place-self: end;
+  place-self: center;
 }
 
-.reset-item-button {
-  grid-area: reset-item-button;
+.button-reset-item {
   background-color: transparent;
   border-radius: 25px;
   border: 2px solid var(--color-font);
@@ -295,39 +292,107 @@
   font: normal normal normal 1.3rem var(--display-font);
   height: min-content;
   padding: .5rem .7rem;
-  place-self: end;
+  width: 40%;
 }
 
 .validation-error-msg {
-  grid-area: validation-msg;
-  font: normal normal normal 1.1rem var(--display-font);
+  font: normal normal normal 1.3rem var(--display-font);
   color: var(--debt_balance);
   text-decoration: underline;
   text-underline-offset: 5px;
 }
 
-.field:has([for="input-unit-price"]) {
-  grid-area: input-price;
-}
-
-.field:has([for="input-quantity-product"]) {
-  grid-area: input-quantity;
-}
-
-.field:has([for="input-detail"]) {
-  grid-area: input-detail;
-}
-
-.field:has([for="input-datetime"]) {
-  grid-area: input-date;
-}
-
 .field:has([for="input-was-paid"]) {
-  grid-area: input-was-paid;
-  width: 100%;
-  flex-direction: row-reverse;
-  align-items: center;
+  flex-direction: column;
   justify-content: start;
+  align-items: center;
   gap: .5rem;
+}
+
+.field:has([for="input-was-paid"]) .field__label {
+  white-space: nowrap;
+}
+
+@media (width >= 768px) {
+  .defaulter-form {
+    margin: 0 auto;
+    justify-content: space-around;
+    gap: 2.5rem 1.5rem;
+  }
+
+  .field__label {
+    font: normal normal normal 2.2rem var(--display-font);
+    line-height: 2.5rem;
+  }
+
+  .name-defaulter-input,
+  .field__input {
+    padding: .5rem 1rem;
+    font: normal normal normal 2rem var(--display-font);
+  }
+
+  .field__input_checkbox {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .submit-new-defaulter-button {
+    font: normal normal normal 2.3rem var(--display-font);
+    width: 45%;
+  }
+
+  .button-reset-item {
+    font: normal normal normal 2rem var(--display-font);
+    width: 45%;
+  }
+
+  .validation-error-msg {
+    font: normal normal normal 2.2rem var(--display-font);
+  }
+
+  .field:has([for="input-was-paid"]) {
+    place-self: end;
+  }
+
+  .field:has([for="input-was-paid"]) .field__label {
+    white-space: nowrap;
+  }
+}
+
+
+/* @media (width >= 1280px) {} */
+@media (width >= 1300px) {
+
+  .field{
+    width: clamp(260px, 30%, 300px);
+  }
+
+  .field__label {
+    font: normal normal normal 1.7rem var(--display-font);
+    line-height: 2.5rem;
+  }
+
+  .name-defaulter-input,
+  .field__input {
+    padding: .5rem 1rem;
+    font: normal normal normal 1.5rem var(--display-font);
+  }
+
+  .field__input_checkbox {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .submit-new-defaulter-button {
+    font: normal normal normal 1.8rem var(--display-font);
+  }
+
+  .button-reset-item {
+    font: normal normal normal 1.6rem var(--display-font);
+  }
+
+  .validation-error-msg {
+    font: normal normal normal 2rem var(--display-font);
+  }
 }
 </style>

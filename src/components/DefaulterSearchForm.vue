@@ -54,7 +54,7 @@
 
 <style scoped>
 .search-defaulter-form{
-  max-width: 25%;
+  /* max-width: 25%; */
   display: flex;
   flex-direction: column;
   gap: .8rem;
@@ -92,8 +92,9 @@
 }
 
 .search-defaulter-form__validation-message{
+    text-align: justify;
     text-decoration: underline;
-    font: normal normal 600 1.15rem var(--default-font);
+    font: normal normal 600 1.4rem var(--default-font);
     color: var(--debt_balance);
 }
 
@@ -108,5 +109,23 @@ input:-webkit-autofill:focus,
 input:-webkit-autofill:active{
     -webkit-box-shadow: 0 0 0 30px var(--input-text-bg) inset !important;
     font: normal normal normal 1.5rem var(--display-font);
+}
+
+@media (width >= 678px) {
+    .search-defaulter-form__input{
+        font: normal normal normal 2.2rem var(--display-font);
+    }
+
+    .search-defaulter-form__input::placeholder{
+        font: normal normal normal 2.2rem var(--display-font);
+    }
+
+
+    .search-defaulter-form__validation-message{
+        font: normal normal 600 1.8rem var(--default-font);
+    }
+}
+@media (width >= 1280px) {
+    
 }
 </style>

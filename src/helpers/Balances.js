@@ -1,17 +1,6 @@
-export const addThousandthPoint = (balance) => { 
-    let stringifiedBalance = parseInt(`${Math.abs(balance)}`).toString()
-    if(stringifiedBalance.length <= 3) return parseInt(`${balance}`).toString()
+export const addThousandthPoint = (balance) => {  //https://stackoverflow.com/questions/42992340/javascript-how-to-set-dot-after-three-digits
+    var parts = balance.toString().split(".");
+    parts[0]= parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,".");
 
-    const splitedAndReversed = stringifiedBalance.split('').reverse()
-    let pointed = splitedAndReversed.reduce((acum, currentNumber, currentIndex) => {
-        if( (currentIndex+1) % 3 === 0 && splitedAndReversed[currentIndex+1] > 0){
-            return ['.', currentNumber, ...acum]
-        }
-
-        return [currentNumber, ...acum]
-    }, [])
-    
-    if( balance < 0 ) pointed.unshift('-')
-
-    return pointed.join('')
+    return parts.join(",");
 }

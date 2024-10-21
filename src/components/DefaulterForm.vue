@@ -8,35 +8,35 @@
 
     <div class="field">
       <label for="input-unit-price" class="field__label">Precio unitario</label>
-      <input type="number" :value="copyAfterSubmit?.Precio_por_unidad || articleInfo?.unit_price" class="field__input"
+      <input type="number" :value="copyAfterSubmit?.Precio_por_unidad || thingInfo?.unit_price" class="field__input"
         id="input-unit-price" name="Precio_por_unidad" placeholder="Costo por unidad">
     </div>
 
     <div class="field">
       <label for="input-quantity-product" class="field__label">Cantidad</label>
-      <input type="number" :value="copyAfterSubmit?.Cantidad || articleInfo?.quantity || 1" class="field__input"
+      <input type="number" :value="copyAfterSubmit?.Cantidad || thingInfo?.quantity || 1" class="field__input"
         id="input-quantity-product" name="Cantidad" min="0" placeholder="Cantidad de productos">
     </div>
 
     <div class="field">
       <label for="input-detail" class="field__label">Detalle</label>
-      <input type="text" :value="copyAfterSubmit?.Detalle || articleInfo?.name" class="field__input" id="input-detail"
+      <input type="text" :value="copyAfterSubmit?.Detalle || thingInfo?.name" class="field__input" id="input-detail"
         name="Detalle" minlength="3" maxlength="40" placeholder="Nombre de producto">
     </div>
 
     <div class="field">
       <label for="input-datetime" class="field__label">Fecha</label>
-      <input type="date" :value="copyAfterSubmit?.Fecha_retiro || articleInfo?.retirement_date" class="field__input"
+      <input type="date" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.retirement_date" class="field__input"
         id="input-datetime" name="Fecha_retiro">
     </div>
 
     <div class="field">
       <label for="input-was-paid" class="field__label">¿Lo pagó?</label>
-      <input type="checkbox" :checked="articleInfo?.was_paid || false" class="field__input_checkbox" id="input-was-paid"
+      <input type="checkbox" :checked="thingInfo?.was_paid || false" class="field__input_checkbox" id="input-was-paid"
         name="Fue_pagado">
     </div>
 
-    <button type="button" @click="resetItemsFields" class="button-reset-item" title="Limpiar">Limpiar item</button>
+    <button type="button" @click="resetThingsFields" class="button-reset-thing" title="Limpiar">Limpiar item</button>
     <button type="submit" class="submit-new-defaulter-button" title="Guardar">Guardar</button>
     <span v-if="validationError.length > 0" class="validation-error-msg">{{ validationError }}</span>
   </form>
@@ -47,25 +47,25 @@
   import useDefaulters from '../composables/useDefaulters';
   import { formatDate } from '../helpers/Dates.js';
 
-  const emits = defineEmits(['handle-submit-form', 'handle-clean-article'])
+  const emits = defineEmits(['handle-submit-form', 'handle-clean-thing'])
 
   const props = defineProps({
     defaulterInfo: Object,
-    articleInfo: Object
+    thingInfo: Object
   })
 
   const rootFormElement = ref(null)
   const validationError = ref('')
   const copyAfterSubmit = ref(null)
 
-  const { createOrUpdateDefaulter, createOrUpdateItem } = useDefaulters()
+  const { createOrUpdateDefaulter, createOrUpdateThing } = useDefaulters()
 
   onMounted(() => {
-    if(!props.articleInfo) { setTodayOnDateInput() }
+    if(!props.thingInfo) { setTodayOnDateInput() }
   })
 
   onUpdated(() => {
-    if(!props.articleInfo) { setTodayOnDateInput() }
+    if(!props.thingInfo) { setTodayOnDateInput() }
   })
 
   const setTodayOnDateInput = () => { 
@@ -95,7 +95,7 @@
 
     const suitableFieldsToSend = { 
       name: sanitizedFields.Nombre_moroso,
-      items: [{
+      items: [{ //77
         unit_price: sanitizedFields.Precio_por_unidad,
         quantity: sanitizedFields.Cantidad,
         name: sanitizedFields.Detalle,
@@ -143,32 +143,32 @@
         }
 
         emits('handle-submit-form', { responseIsGood, defaulter: updatedDefaulterResponse.data.defaulter })
-        resetItemsFields()
+        resetThingsFields()
         return
       }
 
-      if (!props.articleInfo) { // 3ER CASO: GUARDAR ITEM (RU)
+      if (!props.thingInfo) { // 3ER CASO: GUARDAR THING (RU)
         if (falsyFields.length > 0) { 
           showValidationErrors(falsyFields) 
           reFillForm(sanitizedFields)
           return
         }
 
-        console.log('GUARDAR ITEM (RU)');
-        const newItemResponse = await createOrUpdateItem({
+        console.log('GUARDAR thing (RU)');
+        const newThingResponse = await createOrUpdateThing({
           'defaulter_id': props.defaulterInfo.id,
-          'item_id': -1, ...suitableFieldsToSend.items[0]
+          'item_id': -1, ...suitableFieldsToSend.items[0] //77
         })
-        const responseIsGood = newItemResponse.statusText === 'OK'
+        const responseIsGood = newThingResponse.statusText === 'OK'
         if (!responseIsGood) {
-          const errorMessage = `Error al tratar de guardar un nuevo articulo: ${newItemResponse.message}.`
+          const errorMessage = `Error al tratar de guardar un nuevo articulo: ${newThingResponse.message}.`
           console.error(errorMessage)
           alert(errorMessage)
           return
         }
 
-        emits('handle-submit-form', { responseIsGood, defaulter: newItemResponse.data.defaulter })
-        resetItemsFields()
+        emits('handle-submit-form', { responseIsGood, defaulter: newThingResponse.data.defaulter })
+        resetThingsFields()
         return
       }
 
@@ -178,24 +178,24 @@
         return
       }
 
-      // 4TO CASO: EDITAR ITEM (RU)
-      console.log('EDITAR ITEM (RU)');
-      const updatedItemResponse = await createOrUpdateItem({
+      // 4TO CASO: EDITAR THING (RU)
+      console.log('EDITAR THING (RU)');
+      const updatedThingResponse = await createOrUpdateThing({
         'defaulter_id': props.defaulterInfo.id,
-        'item_id': props.articleInfo?.id,
-        ...suitableFieldsToSend.items[0]
+        'item_id': props.thingInfo?.id, //77
+        ...suitableFieldsToSend.items[0] //77
       })
 
-      const responseIsGood = updatedItemResponse.statusText === 'OK'
+      const responseIsGood = updatedThingResponse.statusText === 'OK'
       if (!responseIsGood) {
-        const errorMessage = `Error al tratar de editar un articulo: ${updatedItemResponse.message}.`
+        const errorMessage = `Error al tratar de editar un articulo: ${updatedThingResponse.message}.`
         console.error(errorMessage)
         alert(errorMessage)
         return
       }
 
-      emits('handle-submit-form', { responseIsGood, defaulter: updatedItemResponse.data.defaulter })
-      resetItemsFields()
+      emits('handle-submit-form', { responseIsGood, defaulter: updatedThingResponse.data.defaulter })
+      resetThingsFields()
       return
     }
   }
@@ -208,12 +208,12 @@
 
   const reFillForm = (sanitizedFields) => { 
     copyAfterSubmit.value = { ...sanitizedFields }
-    if(!props.articleInfo){ setTodayOnDateInput()}
+    if(!props.thingInfo){ setTodayOnDateInput()}
   }
 
 
-  const resetItemsFields = (event) => {
-    emits('handle-clean-article')
+  const resetThingsFields = (event) => {
+    emits('handle-clean-thing')
     validationError.value = ``
     copyAfterSubmit.value = (copyAfterSubmit.value) ? { Nombre_moroso: copyAfterSubmit?.value.Nombre_moroso } : null
     const defaulterNameInput = rootFormElement.value.querySelector('.name-defaulter-input')
@@ -284,7 +284,7 @@
   place-self: center;
 }
 
-.button-reset-item {
+.button-reset-thing {
   background-color: transparent;
   border-radius: 25px;
   border: 2px solid var(--color-font);
@@ -341,7 +341,7 @@
     width: 45%;
   }
 
-  .button-reset-item {
+  .button-reset-thing {
     font: normal normal normal 2rem var(--display-font);
     width: 45%;
   }
@@ -387,7 +387,7 @@
     font: normal normal normal 1.8rem var(--display-font);
   }
 
-  .button-reset-item {
+  .button-reset-thing {
     font: normal normal normal 1.6rem var(--display-font);
   }
 

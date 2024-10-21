@@ -34,9 +34,9 @@ const useDefaulters = () => {
         }
     }
     
-    const getItemsOfDefaulterById = async(defaulterId) => { 
+    const getThingsOfDefaulterById = async(defaulterId) => { 
         try {
-          const response = await instance.get(`/defaulters/${defaulterId}/items`);
+          const response = await instance.get(`/defaulters/${defaulterId}/items`); //77
           return response
         } catch (error) {
           console.error("EXPLOTO ESTO --->: ", error);
@@ -64,11 +64,11 @@ const useDefaulters = () => {
       }
     };
 
-    const createOrUpdateItem = async(itemRecord) => {
-      const { item_id } = itemRecord
+    const createOrUpdateThing = async(thingToSend) => {
+      const { item_id } = thingToSend
       if(item_id === -1){ // when CREATING...
         try {
-          const response = await instance.post('/items', itemRecord);
+          const response = await instance.post('/items', thingToSend); //77
           return response
         } catch (error) {
           console.error("EXPLOTO ESTO --->: ", error);
@@ -76,7 +76,7 @@ const useDefaulters = () => {
         }
       } else { // when UPDATING...
         try {
-          const response = await instance.put(`/items/${item_id}`, itemRecord);
+          const response = await instance.put(`/items/${item_id}`, thingToSend); //77
           return response
         } catch (error) {
           console.error("EXPLOTO ESTO --->: ", error);
@@ -85,9 +85,9 @@ const useDefaulters = () => {
       }
     };
 
-    const deleteItem = async(item_id) => {
+    const deleteThing = async(thing_id) => {
       try {
-        const response = await instance.delete(`/items/${item_id}`);
+        const response = await instance.delete(`/items/${thing_id}`);
         return response
       } catch (error) {
         console.error("EXPLOTO ESTO --->: ", error);
@@ -96,12 +96,12 @@ const useDefaulters = () => {
     };
     
     return {
-        getAllDefaulters,
-        getDefaulterInfoById,
-        getItemsOfDefaulterById,
-        createOrUpdateDefaulter,
-        createOrUpdateItem,
-        deleteItem
+      getAllDefaulters,
+      getDefaulterInfoById,
+      getThingsOfDefaulterById,
+      createOrUpdateDefaulter,
+      createOrUpdateThing,
+      deleteThing
     };
   };
   

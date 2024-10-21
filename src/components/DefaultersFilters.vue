@@ -8,7 +8,6 @@
             :is-active="activeFilter === paramName" 
             @click="setOrderBy(indexFilter)"
           />
-          <!-- <span v-if="indexFilter !== (filters.length-1)">-</span> -->
         </li>
     </ul>
   </div>

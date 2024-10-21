@@ -1,12 +1,12 @@
 <template>
-    <ul class="articles-list">
-        <li v-for="({unit_price, quantity, name, was_paid}, indexArticle) in articles" :key="indexArticle" class="articles-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
+    <ul class="things-list">
+        <li v-for="({unit_price, quantity, name, was_paid}, indexThing) in things" :key="indexThing" class="things-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
             <span class="price-detail-tag" :class="(Boolean(was_paid)) ? 'was-paid': ''">${{addThousandthPoint((unit_price * quantity))}} {{name}}</span>
-            <button class="edit-tag" @click="$emit('handleEditArticle', indexArticle)">
-                <i class='bx bx-edit bx-xs'></i>
+            <button class="edit-tag" @click="$emit('handleEditThing', indexThing)">
+                <i class='bx bx-edit bx-sm'></i>
             </button>
-            <button class="delete-tag" @click="$emit('handleDeleteArticle', indexArticle)">
-                <i class='bx bx-trash bx-xs'></i>
+            <button class="delete-tag" @click="$emit('handleDeleteThing', indexThing)">
+                <i class='bx bx-trash bx-sm'></i>
             </button>
         </li>
     </ul>
@@ -16,12 +16,12 @@
     import { addThousandthPoint } from '../helpers/Balances';
 
     const props = defineProps({
-        articles: Array,
+        things: Array,
     })
 </script>
 
 <style scoped>
-.articles-list{
+.things-list{
   min-height: 15vh;
   max-height: 40vh;
   background-color: var(--grey);
@@ -34,7 +34,7 @@
   overflow-y: auto;
 }
 
-.articles-list-item{
+.things-list-item{
   font: normal normal normal 1.3rem var(--default-font);
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@
 }
 
 @media (width >= 768px) {
-    .articles-list{
+    .things-list{
         width: 95%;
         margin: 0 auto;
         flex-wrap: wrap;
@@ -59,7 +59,7 @@
         overflow-y: auto;
     }
 
-    .articles-list-item{
+    .things-list-item{
         font: normal normal normal 2rem var(--default-font);
         gap: .5rem;
     }
@@ -67,7 +67,7 @@
 
 /* @media (width >= 1280px) {} */
 @media (width >= 1300px) {
-    .articles-list-item{
+    .things-list-item{
         font: normal normal normal 1.7rem var(--default-font);
         gap: .5rem;
     }

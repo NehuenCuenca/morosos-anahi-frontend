@@ -36,7 +36,7 @@ const useDefaulters = () => {
     
     const getThingsOfDefaulterById = async(defaulterId) => { 
         try {
-          const response = await instance.get(`/defaulters/${defaulterId}/items`); //77
+          const response = await instance.get(`/defaulters/${defaulterId}/things`); //77
           return response
         } catch (error) {
           console.error("EXPLOTO ESTO --->: ", error);
@@ -65,10 +65,10 @@ const useDefaulters = () => {
     };
 
     const createOrUpdateThing = async(thingToSend) => {
-      const { item_id } = thingToSend
-      if(item_id === -1){ // when CREATING...
+      const { thing_id } = thingToSend
+      if(thing_id === -1){ // when CREATING...
         try {
-          const response = await instance.post('/items', thingToSend); //77
+          const response = await instance.post('/things', thingToSend); //77
           return response
         } catch (error) {
           console.error("EXPLOTO ESTO --->: ", error);
@@ -76,7 +76,7 @@ const useDefaulters = () => {
         }
       } else { // when UPDATING...
         try {
-          const response = await instance.put(`/items/${item_id}`, thingToSend); //77
+          const response = await instance.put(`/things/${thing_id}`, thingToSend); //77
           return response
         } catch (error) {
           console.error("EXPLOTO ESTO --->: ", error);
@@ -87,11 +87,31 @@ const useDefaulters = () => {
 
     const deleteThing = async(thing_id) => {
       try {
-        const response = await instance.delete(`/items/${thing_id}`);
+        const response = await instance.delete(`/things/${thing_id}`);
         return response
       } catch (error) {
         console.error("EXPLOTO ESTO --->: ", error);
         return error
+      }
+    };
+
+    const createOrUpdateDebt = async(debtId, debtRecord) => {
+      if(debtId === -1){ // when CREATING...
+        try {
+          const response = await instance.post('/debts', debtRecord);
+          return response
+        } catch (error) {
+          console.error("ERROR AL CREAR UNA NUEVA DEUDA: ", error);
+          return error
+        }
+      } else { // when UPDATING...
+        try {
+          const response = await instance.put(`/debts/${debtId}`, debtRecord);
+          return response
+        } catch (error) {
+          console.error("ERROR AL EDITAR UNA DEUDA EXISTENTE: ", error);
+          return error
+        }
       }
     };
     
@@ -101,7 +121,8 @@ const useDefaulters = () => {
       getThingsOfDefaulterById,
       createOrUpdateDefaulter,
       createOrUpdateThing,
-      deleteThing
+      deleteThing,
+      createOrUpdateDebt
     };
   };
   

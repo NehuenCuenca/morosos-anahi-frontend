@@ -19,8 +19,8 @@
   
   const isModalOpen = ref(false)
   const defaulterInfo = ref(null)
-  const defaulterThings = ref([])
-  const defaulterThingSelected = ref(null)
+  const defaulterDebts = ref([])
+  const defaulterDebtSelected = ref(null)
   const userAction = ref('') // stands for one or more letters of CRUD operations 
   const isDoingCRUDOperations = computed(() => {
     return (userAction.value.length === 0) ? false :  
@@ -93,7 +93,7 @@
 
     const responseIsGood = getDefaulterInfoResponse.statusText === 'OK'
     if( !responseIsGood  ){
-      const errorMessage = `Error al traer la informacion del moroso y sus items: ${getDefaulterInfoResponse.message}. Intentalo de nuevo mas tarde.`
+      const errorMessage = `Error al traer la informacion del moroso y sus deudas: ${getDefaulterInfoResponse.message}. Intentalo de nuevo mas tarde.`
       console.error(errorMessage);
       alert(errorMessage);
       errorWhenLoadSingleDefaulter.value = { bool: true, message: errorMessage};
@@ -102,20 +102,21 @@
     }
 
     errorWhenLoadSingleDefaulter.value = { bool: false, message:`` };
-    const { items, ...restInfo } = getDefaulterInfoResponse.data.defaulter //77
+    const { debts, ...restInfo } = getDefaulterInfoResponse.data.defaulter //77
     defaulterInfo.value = restInfo
-    defaulterThings.value = items //77
+    defaulterDebts.value = debts //77
   }
 
   const handleEditThing = (indexThingSelected) => { 
     console.log('EDIT executed', indexThingSelected); 
-    defaulterThingSelected.value = defaulterThings.value[indexThingSelected]
+    defaulterDebtSelected.value = defaulterDebts.value[indexThingSelected]
   }
 
   const handleDeleteThing = async(indexThingSelected) => { 
     console.log('DELETE executed', indexThingSelected); 
-    const thingSelected = defaulterThings.value[indexThingSelected]
-    const { name, quantity, unit_price, was_paid } = thingSelected
+    const thingSelected = defaulterDebts.value[indexThingSelected]
+    const { name } = thingSelected
+    const { quantity, unit_price, was_paid } = thingSelected.pivot
     const crossOutOrDebtText = (was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
     const confirmDeleteThing = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
 
@@ -130,17 +131,17 @@
       return
     }
 
-    const { items, ...restInfo } = deletedThingResponse.data.defaulter //77
+    const { debts, ...restInfo } = deletedThingResponse.data.defaulter //77
     defaulterInfo.value = restInfo
-    defaulterThings.value = items //77
+    defaulterDebts.value = debts //77
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
   const cleanPreviousDefaulterInfo = () => { 
     defaulterInfo.value = null
-    defaulterThings.value = []
-    defaulterThingSelected.value = null
+    defaulterDebts.value = []
+    defaulterDebtSelected.value = null
   }
 
   const updateLocalDefaulter = async({responseIsGood, defaulter}) => { 
@@ -148,16 +149,17 @@
       closeModal() 
       userAction.value = 'RU'
     }
-    const { items, ...restInfo } = defaulter //77
+    const { debts, ...restInfo } = defaulter //77
     
     defaulterInfo.value = restInfo
-    defaulterThings.value = items //77
+    defaulterDebts.value = debts //77
+    cleanThingSelected()
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
   const cleanThingSelected = () => { 
-    defaulterThingSelected.value = null
+    defaulterDebtSelected.value = null
   }
 </script>
 
@@ -188,9 +190,9 @@
       <span class="msg-error-after-load" v-else>{{ errorWhenLoadAllDefaulters.message }}</span>
 
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal">
-        <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterThingSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/> <!-- 77 -->
+        <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/> <!-- 77 -->
         <div class="divider-modal"></div>
-        <DefaulterThingsList :things="defaulterThings" @handle-edit-thing="handleEditThing" @handle-delete-thing="handleDeleteThing"/> <!-- 77 -->
+        <DefaulterThingsList :things="defaulterDebts" @handle-edit-thing="handleEditThing" @handle-delete-thing="handleDeleteThing"/> <!-- 77 -->
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
     </main>

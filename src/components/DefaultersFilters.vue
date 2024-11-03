@@ -22,7 +22,6 @@
 
   const filters = ref([
     {bool: false, caption: "Alfabeticamente", paramName: 'orderByAlphabet'},
-    {bool: false, caption: "Mas reciente", paramName: 'orderByLastestRecent'},
     {bool: false, caption: "Mayor deudor", paramName: 'orderByLargestDebtor'},
   ])
 

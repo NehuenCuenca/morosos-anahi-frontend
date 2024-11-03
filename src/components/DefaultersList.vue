@@ -2,7 +2,7 @@
     <!-- <h2 v-if="defaulters.length === 0">No hay morosos 🥳</h2> -->
     <!-- <ul v-else class="defaulters-list"> -->
     <ul class="defaulters-list">
-        <li v-for="({id, name, total_balance}, index) in defaulters" :key="index" class="defaulters-list-item">
+        <li v-for="({id, name, total_balance, is_deleted}, index) in defaulters" :key="index" class="defaulters-list-item" :class="(is_deleted) ? 'defaulters-list-item_deleted': ''">
           <button type="button" @click="(event) => handleViewDefaulter(id, event)" class="defaulters-list-item__button">
             <span class="defaulter-name">{{name}}</span>  
             <span class="defaulter-balance" 
@@ -43,6 +43,12 @@
 .defaulters-list-item{
   border-radius: 15px;
   background-color: #D9D9D9;
+}
+.defaulters-list-item_deleted{
+  background-color: none;
+  /* https://stripesgenerator.com/ */
+  background-image: linear-gradient(45deg, #fff3e4 25%, #b8a0a0 25%, #b8a0a0 50%, #fff3e4 50%, #fff3e4 75%, #b8a0a0 75%, #b8a0a0 100%);
+background-size: 56.57px 56.57px;
 }
 
 .defaulters-list-item__button{

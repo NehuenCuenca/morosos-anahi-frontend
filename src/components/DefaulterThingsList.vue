@@ -1,7 +1,7 @@
 <template>
     <ul class="things-list">
-        <li v-for="({unit_price, quantity, name, was_paid}, indexThing) in things" :key="indexThing" class="things-list-item" :class="unit_price > 0 ? 'debt_balance' : 'discount_balance'">
-            <span class="price-detail-tag" :class="(Boolean(was_paid)) ? 'was-paid': ''">${{addThousandthPoint((unit_price * quantity))}} {{name}}</span>
+        <li v-for="({name, pivot}, indexThing) in things" :key="indexThing" class="things-list-item" :class="pivot.unit_price > 0 ? 'debt_balance' : 'discount_balance'">
+            <span class="price-detail-tag" :class="(Boolean(pivot.was_paid)) ? 'was-paid': ''">${{addThousandthPoint((pivot.unit_price * pivot.quantity))}} {{name}}</span>
             <button class="edit-tag" @click="$emit('handleEditThing', indexThing)">
                 <i class='bx bx-edit bx-sm'></i>
             </button>

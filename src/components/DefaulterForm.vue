@@ -8,13 +8,13 @@
 
     <div class="field">
       <label for="input-unit-price" class="field__label">Precio unitario</label>
-      <input type="number" :value="copyAfterSubmit?.Precio_por_unidad || thingInfo?.unit_price" class="field__input"
+      <input type="number" :value="copyAfterSubmit?.Precio_por_unidad || thingInfo?.pivot.unit_price" class="field__input"
         id="input-unit-price" name="Precio_por_unidad" placeholder="Costo por unidad">
     </div>
 
     <div class="field">
       <label for="input-quantity-product" class="field__label">Cantidad</label>
-      <input type="number" :value="copyAfterSubmit?.Cantidad || thingInfo?.quantity || 1" class="field__input"
+      <input type="number" :value="copyAfterSubmit?.Cantidad || thingInfo?.pivot.quantity || 1" class="field__input"
         id="input-quantity-product" name="Cantidad" min="0" placeholder="Cantidad de productos">
     </div>
 
@@ -26,13 +26,13 @@
 
     <div class="field">
       <label for="input-datetime" class="field__label">Fecha</label>
-      <input type="date" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.retirement_date" class="field__input"
+      <input type="date" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at" class="field__input"
         id="input-datetime" name="Fecha_retiro">
     </div>
 
     <div class="field">
       <label for="input-was-paid" class="field__label">¿Lo pagó?</label>
-      <input type="checkbox" :checked="thingInfo?.was_paid || false" class="field__input_checkbox" id="input-was-paid"
+      <input type="checkbox" :checked="!!thingInfo?.pivot.was_paid || false" class="field__input_checkbox" id="input-was-paid"
         name="Fue_pagado">
     </div>
 
@@ -58,7 +58,7 @@
   const validationError = ref('')
   const copyAfterSubmit = ref(null)
 
-  const { createOrUpdateDefaulter, createOrUpdateThing } = useDefaulters()
+  const { createOrUpdateDebt } = useDefaulters()
 
   onMounted(() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
@@ -67,6 +67,11 @@
   onUpdated(() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
   })
+
+  const resetAfterSubmit = () => {
+    validationError.value = ''
+    copyAfterSubmit.value = null
+  }
 
   const setTodayOnDateInput = () => { 
     const timeElapsed = Date.now();
@@ -85,119 +90,95 @@
       Nombre_moroso: Nombre_moroso.trim(),
       Precio_por_unidad: Number(Precio_por_unidad),
       Cantidad: Number(Cantidad),
-      Detalle: Detalle.trim() ,
+      Detalle: Detalle.trim(),
       Fecha_retiro ,
-      // Fue_pagado: (Fue_pagado === 'on') ? true : false // not required
+      // Fue_pagado: (Fue_pagado === 'on') ? true : false // not necessary to validate
     }
 
     const keyNamesOfFields = Object.keys(sanitizedFields)
     const falsyFields = Object.values(sanitizedFields).map( (val, index) => !val && keyNamesOfFields[index]).filter(val => val)
 
+    if (falsyFields.length > 0) { 
+      showValidationErrors(falsyFields) 
+      reFillForm(sanitizedFields)
+      return
+    }
+
+    sanitizedFields.Fue_pagado = (Fue_pagado === 'on') ? true : false
+
+    if(currentCRUDOperation === 'C'){
+      await createDebt(sanitizedFields)
+    } else {
+      await updateDebt(sanitizedFields)
+    }
+  }
+
+  const createDebt = async(newDebt) => { 
+    console.log('createDebt | GUARDAR MOROSO (C)', newDebt);
+
     const suitableFieldsToSend = { 
-      name: sanitizedFields.Nombre_moroso,
-      items: [{ //77
-        unit_price: sanitizedFields.Precio_por_unidad,
-        quantity: sanitizedFields.Cantidad,
-        name: sanitizedFields.Detalle,
-        retirement_date: sanitizedFields.Fecha_retiro,
-        was_paid: (Fue_pagado === 'on') ? true : false
+      defaulter_name: newDebt.Nombre_moroso,
+      things: [{
+        thing_name: newDebt.Detalle,
+        unit_price: newDebt.Precio_por_unidad,
+        quantity: newDebt.Cantidad,
+        retired_at: newDebt.Fecha_retiro,
+        filed_at: null, // REMINDER: CHANGE THIS WHEN THE FILED AT BUTTON IS ADDED
+        was_paid: newDebt.Fue_pagado
       }]
-    }    
+    }
 
-    if( currentCRUDOperation === 'C' ){  // 1ER CASO: GUARDAR MOROSO (C)
-      if (falsyFields.length > 0) { 
-        showValidationErrors(falsyFields) 
-        reFillForm(sanitizedFields)
-        return
-      }
-
-      console.log('GUARDAR MOROSO (C)', suitableFieldsToSend);
-      const newDefaulterResponse = await createOrUpdateDefaulter(-1, suitableFieldsToSend)
-      console.log(newDefaulterResponse);
-      const responseIsGood = newDefaulterResponse.statusText === 'OK'
-      if (!responseIsGood) {
-        const errorMessage = `Error al tratar de guardar un nuevo moroso: ${newDefaulterResponse.message}.`
-        console.error(errorMessage)
-        alert(errorMessage)
-        return
-      }
-
-      emits('handle-submit-form', { responseIsGood, defaulter: newDefaulterResponse.data.defaulter })
+    const newDebtResponse = await createOrUpdateDebt(-1, suitableFieldsToSend)
+    console.log(newDebtResponse);
+    const responseIsGood = newDebtResponse.statusText === 'OK'
+    if (!responseIsGood) {
+      const errorMessage = `Error al tratar de guardar una nueva deuda: ${newDebtResponse?.response?.data.message} ${newDebtResponse.message}.`
+      console.error(errorMessage)
+      alert(errorMessage)
       return
     }
 
-    if (currentCRUDOperation.includes('U')) {
-      if (
-          suitableFieldsToSend.name !== props.defaulterInfo.name 
-          && suitableFieldsToSend.name.length > 0 
-        ) { // 2DO CASO: EDITAR MOROSO (RU)
+    emits('handle-submit-form', { responseIsGood, defaulter: newDebtResponse.data.defaulter })
+    resetAfterSubmit()
+    return
+  }
 
-        console.log('EDITAR MOROSO (RU)');
-        const updatedDefaulterResponse = await createOrUpdateDefaulter(props.defaulterInfo.id, suitableFieldsToSend)
-        const responseIsGood = updatedDefaulterResponse.statusText === 'OK'
-        if (!responseIsGood) {
-          const errorMessage = `Error al tratar de editar un nuevo moroso: ${updatedDefaulterResponse.message}.`
-          console.error(errorMessage)
-          alert(errorMessage)
-          return
-        }
-
-        emits('handle-submit-form', { responseIsGood, defaulter: updatedDefaulterResponse.data.defaulter })
-        resetThingsFields()
-        return
-      }
-
-      if (!props.thingInfo) { // 3ER CASO: GUARDAR THING (RU)
-        if (falsyFields.length > 0) { 
-          showValidationErrors(falsyFields) 
-          reFillForm(sanitizedFields)
-          return
-        }
-
-        console.log('GUARDAR thing (RU)');
-        const newThingResponse = await createOrUpdateThing({
-          'defaulter_id': props.defaulterInfo.id,
-          'item_id': -1, ...suitableFieldsToSend.items[0] //77
-        })
-        const responseIsGood = newThingResponse.statusText === 'OK'
-        if (!responseIsGood) {
-          const errorMessage = `Error al tratar de guardar un nuevo articulo: ${newThingResponse.message}.`
-          console.error(errorMessage)
-          alert(errorMessage)
-          return
-        }
-
-        emits('handle-submit-form', { responseIsGood, defaulter: newThingResponse.data.defaulter })
-        resetThingsFields()
-        return
-      }
-
-      if (falsyFields.length > 0) { 
-        showValidationErrors(falsyFields) 
-        reFillForm(sanitizedFields)
-        return
-      }
-
-      // 4TO CASO: EDITAR THING (RU)
-      console.log('EDITAR THING (RU)');
-      const updatedThingResponse = await createOrUpdateThing({
-        'defaulter_id': props.defaulterInfo.id,
-        'item_id': props.thingInfo?.id, //77
-        ...suitableFieldsToSend.items[0] //77
-      })
-
-      const responseIsGood = updatedThingResponse.statusText === 'OK'
-      if (!responseIsGood) {
-        const errorMessage = `Error al tratar de editar un articulo: ${updatedThingResponse.message}.`
-        console.error(errorMessage)
-        alert(errorMessage)
-        return
-      }
-
-      emits('handle-submit-form', { responseIsGood, defaulter: updatedThingResponse.data.defaulter })
-      resetThingsFields()
+  const updateDebt = async(debtToUpdate) => { 
+    console.log('updateDebt | EDITAR MOROSO (RU)', debtToUpdate);
+    
+    const selectedAThingToEdit = !!props.thingInfo
+    
+    if( !selectedAThingToEdit ) {
+      createDebt(debtToUpdate)
       return
     }
+
+    const suitableFieldsToSend = { 
+      unit_price: debtToUpdate.Precio_por_unidad,
+      quantity: debtToUpdate.Cantidad,
+      retired_at: debtToUpdate.Fecha_retiro,
+      filed_at: null, // REMINDER: CHANGE THIS WHEN THE FILED AT BUTTON IS ADDED
+      was_paid: debtToUpdate.Fue_pagado
+    }
+
+    const defaulterNameWasEdited = debtToUpdate.Nombre_moroso !== props.defaulterInfo.name
+    const thingNameWasEdited = selectedAThingToEdit && (debtToUpdate.Detalle !== props.thingInfo.name)
+    if(defaulterNameWasEdited) { suitableFieldsToSend.new_defaulter_name = debtToUpdate.Nombre_moroso }
+    if(thingNameWasEdited) { suitableFieldsToSend.new_thing_name = debtToUpdate.Detalle }
+
+    const updatedDebtResponse = await createOrUpdateDebt(props.thingInfo.pivot.id, suitableFieldsToSend)
+    console.log(updatedDebtResponse);
+    const responseIsGood = updatedDebtResponse.statusText === 'OK'
+    if (!responseIsGood) {
+      const errorMessage = `Error al tratar de guardar una nueva deuda: ${updatedDebtResponse?.response?.data.message} (${updatedDebtResponse.message}).`
+      console.error(errorMessage)
+      alert(errorMessage)
+      return
+    }
+
+    emits('handle-submit-form', { responseIsGood, defaulter: updatedDebtResponse.data.defaulter })
+    resetAfterSubmit()
+    return
   }
 
   const showValidationErrors = (fieldsWithErrors) => { 
@@ -217,10 +198,12 @@
     validationError.value = ``
     copyAfterSubmit.value = (copyAfterSubmit.value) ? { Nombre_moroso: copyAfterSubmit?.value.Nombre_moroso } : null
     const defaulterNameInput = rootFormElement.value.querySelector('.name-defaulter-input')
+    const quantityInput = rootFormElement.value.querySelector('#input-quantity-product')
     const nameBeforeReset = defaulterNameInput.value
     rootFormElement.value.reset()
 
     defaulterNameInput.value = nameBeforeReset || ''
+    quantityInput.value = 1
 
     nextTick(() => { setTodayOnDateInput() })
   }

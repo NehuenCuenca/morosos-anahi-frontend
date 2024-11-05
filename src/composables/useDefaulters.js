@@ -22,6 +22,21 @@ const useDefaulters = () => {
         console.error("EXPLOTO ESTO --->: ", error);
         return error
       }
+    };  
+
+    const getAllThings = async(callParams) => {
+      // const { paginatedBy, page, orderByLastestRecent, orderByAlphabet } = callParams
+      try {
+        const response = await instance.get('/things', {
+          params: {
+            ...callParams
+          }
+        });
+        return response
+      } catch (error) {
+        console.error("EXPLOTO ESTO --->: ", error);
+        return error
+      }
     };   
     
     const getDefaulterInfoById = async(defaulterId) => { 
@@ -117,6 +132,7 @@ const useDefaulters = () => {
     
     return {
       getAllDefaulters,
+      getAllThings,
       getDefaulterInfoById,
       getThingsOfDefaulterById,
       createOrUpdateDefaulter,

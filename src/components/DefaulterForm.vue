@@ -2,8 +2,11 @@
   <form class="defaulter-form" ref="rootFormElement" @submit.prevent="handleSubmit">
     <div class="field">
       <label for="input-defaulter-name" class="field__label">Nombre de moroso</label>
-      <input type="text" id="input-defaulter-name" :value="copyAfterSubmit?.Nombre_moroso || defaulterInfo?.name"
+      <input type="text" list="defaulter-names" id="input-defaulter-name" :value="copyAfterSubmit?.Nombre_moroso || defaulterInfo?.name"
         class="name-defaulter-input" name="Nombre_moroso" placeholder="Un nombre o apodo">
+      <datalist id="defaulter-names" v-if="defaultersNames.length > 0"> 
+        <option v-for="({name}) in defaultersNames" :value="name"></option>
+      </datalist>
     </div>
 
     <div class="field">
@@ -20,8 +23,11 @@
 
     <div class="field">
       <label for="input-detail" class="field__label">Detalle</label>
-      <input type="text" :value="copyAfterSubmit?.Detalle || thingInfo?.name" class="field__input" id="input-detail"
+      <input type="text" list="thing-names" :value="copyAfterSubmit?.Detalle || thingInfo?.name" class="field__input" id="input-detail"
         name="Detalle" minlength="3" maxlength="40" placeholder="Nombre de producto">
+      <datalist id="thing-names" v-if="thingsNames.length > 0"> 
+        <option v-for="({name}) in thingsNames" :value="name"></option>
+      </datalist>
     </div>
 
     <div class="field">
@@ -57,11 +63,15 @@
   const rootFormElement = ref(null)
   const validationError = ref('')
   const copyAfterSubmit = ref(null)
+  const defaultersNames = ref([])
+  const thingsNames = ref([])
 
-  const { createOrUpdateDebt } = useDefaulters()
+  const { createOrUpdateDebt, getAllDefaulters, getAllThings } = useDefaulters()
 
-  onMounted(() => {
+  onMounted( async() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
+    await loadDefaultersNames()
+    await loadThingsNames()
   })
 
   onUpdated(() => {
@@ -206,6 +216,18 @@
     quantityInput.value = 1
 
     nextTick(() => { setTodayOnDateInput() })
+  }
+
+  const loadDefaultersNames = async() => { 
+    const defaultersPromise = await getAllDefaulters({ orderByAlphabet: true })
+    const { data } = defaultersPromise.data.defaulters
+    defaultersNames.value = data.map(({id, name}) => ({ id, name: name.toLowerCase() }))
+  }
+
+  const loadThingsNames = async() => { 
+    const thingsPromise = await getAllThings({ orderByAlphabet: true })
+    const { data } = thingsPromise.data.things
+    thingsNames.value = data.map(({id, name}) => ({ id, name: name.toLowerCase() }))
   }
 </script>
 

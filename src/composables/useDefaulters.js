@@ -100,16 +100,6 @@ const useDefaulters = () => {
       }
     };
 
-    const deleteThing = async(thing_id) => {
-      try {
-        const response = await instance.delete(`/things/${thing_id}`);
-        return response
-      } catch (error) {
-        console.error("EXPLOTO ESTO --->: ", error);
-        return error
-      }
-    };
-
     const createOrUpdateDebt = async(debtId, debtRecord) => {
       if(debtId === -1){ // when CREATING...
         try {
@@ -137,7 +127,6 @@ const useDefaulters = () => {
       getThingsOfDefaulterById,
       createOrUpdateDefaulter,
       createOrUpdateThing,
-      deleteThing,
       createOrUpdateDebt
     };
   };

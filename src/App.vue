@@ -1,5 +1,5 @@
 <script setup>
-  import DefaulterThingsList from './components/DefaulterThingsList.vue';
+  import DefaulterDebtsList from './components/DefaulterDebtsList.vue';
   import DefaulterBalancesList from './components/DefaulterBalancesList.vue';
   import DefaulterForm from './components/DefaulterForm.vue';
   import DefaultersFilters from './components/DefaultersFilters.vue';
@@ -59,7 +59,7 @@
   const { 
     getAllDefaulters, 
     getDefaulterInfoById,
-    deleteThing
+    createOrUpdateDebt
   } = useDefaulters()
 
   onMounted( async() => {
@@ -107,33 +107,33 @@
     defaulterDebts.value = debts //77
   }
 
-  const handleEditThing = (indexThingSelected) => { 
-    console.log('EDIT executed', indexThingSelected); 
-    defaulterDebtSelected.value = defaulterDebts.value[indexThingSelected]
+  const handleEditDebt = (debt_id_selected) => { 
+    console.log('EDIT executed', debt_id_selected, ); 
+    defaulterDebtSelected.value = defaulterDebts.value.find( ({pivot}) => pivot.id === debt_id_selected )
   }
 
-  const handleDeleteThing = async(indexThingSelected) => { 
-    console.log('DELETE executed', indexThingSelected); 
-    const thingSelected = defaulterDebts.value[indexThingSelected]
+  const handleSoftDeleteDebt = async(debt_id_selected) => { 
+    console.log('SOFT DELETE executed', debt_id_selected); 
+    const thingSelected = defaulterDebts.value.find( ({pivot}) => pivot.id === debt_id_selected )
     const { name } = thingSelected
     const { quantity, unit_price, was_paid } = thingSelected.pivot
     const crossOutOrDebtText = (was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
-    const confirmDeleteThing = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
+    const confirmDeleteDebt = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
 
-    if(!confirmDeleteThing) return
+    if(!confirmDeleteDebt) return
 
-    const deletedThingResponse = await deleteThing(thingSelected.id)
-    const responseIsGood = deletedThingResponse.statusText === 'OK'
+    const softDeletedDebtResponse = await createOrUpdateDebt(debt_id_selected, {was_paid: !was_paid})
+    const responseIsGood = softDeletedDebtResponse.statusText === 'OK'
     if(!responseIsGood){
-      const errorMessage = `Error al tratar de ${crossOutOrDebtText} el articulo ${name}: ${deletedThingResponse.message}. Intentalo de nuevo mas tarde.`
+      const errorMessage = `Error al tratar de ${crossOutOrDebtText} la deuda ${name}: ${softDeletedDebtResponse.message}. Intentalo de nuevo mas tarde.`
       console.error(errorMessage);
       alert(errorMessage);
       return
     }
 
-    const { debts, ...restInfo } = deletedThingResponse.data.defaulter //77
+    const { debts, ...restInfo } = softDeletedDebtResponse.data.defaulter
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts //77
+    defaulterDebts.value = debts
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
@@ -192,7 +192,7 @@
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal">
         <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/> <!-- 77 -->
         <div class="divider-modal"></div>
-        <DefaulterThingsList :things="defaulterDebts" @handle-edit-thing="handleEditThing" @handle-delete-thing="handleDeleteThing"/> <!-- 77 -->
+        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt"/> <!-- 77 -->
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
     </main>

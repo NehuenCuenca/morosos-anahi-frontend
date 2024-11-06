@@ -1,11 +1,11 @@
 <template>
-    <ul class="things-list">
-        <li v-for="({name, pivot}, indexThing) in things" :key="indexThing" class="things-list-item" :class="pivot.unit_price > 0 ? 'debt_balance' : 'discount_balance'">
+    <ul class="debts-list">
+        <li v-for="({name, pivot}) in debts" :key="pivot.id" class="debts-list-item" :class="pivot.unit_price > 0 ? 'debt_balance' : 'discount_balance'">
             <span class="price-detail-tag" :class="(Boolean(pivot.was_paid)) ? 'was-paid': ''">${{addThousandthPoint((pivot.unit_price * pivot.quantity))}} {{name}}</span>
-            <button class="edit-tag" @click="$emit('handleEditThing', indexThing)">
+            <button class="edit-tag" @click="$emit('handleEditDebt', pivot.id)">
                 <i class='bx bx-edit bx-sm'></i>
             </button>
-            <button class="delete-tag" @click="$emit('handleDeleteThing', indexThing)">
+            <button class="delete-tag" @click="$emit('handleDeleteDebt', pivot.id)">
                 <i class='bx bx-trash bx-sm'></i>
             </button>
         </li>
@@ -16,12 +16,12 @@
     import { addThousandthPoint } from '../helpers/Balances';
 
     const props = defineProps({
-        things: Array,
+        debts: Array,
     })
 </script>
 
 <style scoped>
-.things-list{
+.debts-list{
   min-height: 15vh;
   max-height: 40vh;
   background-color: var(--grey);
@@ -34,7 +34,7 @@
   overflow-y: auto;
 }
 
-.things-list-item{
+.debts-list-item{
   font: normal normal normal 1.3rem var(--default-font);
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@
 }
 
 @media (width >= 768px) {
-    .things-list{
+    .debts-list{
         width: 95%;
         margin: 0 auto;
         flex-wrap: wrap;
@@ -59,7 +59,7 @@
         overflow-y: auto;
     }
 
-    .things-list-item{
+    .debts-list-item{
         font: normal normal normal 2rem var(--default-font);
         gap: .5rem;
     }
@@ -67,7 +67,7 @@
 
 /* @media (width >= 1280px) {} */
 @media (width >= 1300px) {
-    .things-list-item{
+    .debts-list-item{
         font: normal normal normal 1.7rem var(--default-font);
         gap: .5rem;
     }

@@ -367,6 +367,9 @@
 
 /* @media (width >= 1280px) {} */
 @media (width >= 1300px) {
+  .defaulter-form {
+    gap: 2rem 1.5rem;
+  }
 
   .field{
     width: clamp(260px, 30%, 300px);
@@ -374,6 +377,7 @@
 
   .field__label {
     font: normal normal normal 1.7rem var(--display-font);
+    /* font: normal normal normal 1.5rem var(--display-font); */
     line-height: 2.5rem;
   }
 
@@ -381,6 +385,7 @@
   .field__input {
     padding: .5rem 1rem;
     font: normal normal normal 1.5rem var(--display-font);
+    /* font: normal normal normal 1.3rem var(--display-font); */
   }
 
   .field__input_checkbox {
@@ -389,11 +394,11 @@
   }
 
   .submit-new-defaulter-button {
-    font: normal normal normal 1.8rem var(--display-font);
+    font: normal normal normal 1.6rem var(--display-font);
   }
 
   .button-reset-thing {
-    font: normal normal normal 1.6rem var(--display-font);
+    font: normal normal normal 1.4rem var(--display-font);
   }
 
   .validation-error-msg {

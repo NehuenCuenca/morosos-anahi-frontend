@@ -27,7 +27,7 @@
 }
 .modal-content{
     width: 90%;
-    min-height: 500px;
+    min-height: 400px;
     max-height: 95%;
     padding: 1rem;
     background-color: var(--color-bg);

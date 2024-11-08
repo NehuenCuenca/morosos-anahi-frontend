@@ -1,12 +1,20 @@
 <template>
     <ul class="debts-list">
-        <li v-for="({name, pivot}) in debts" :key="pivot.id" class="debts-list-item" :class="pivot.unit_price > 0 ? 'debt_balance' : 'discount_balance'">
+        <li v-for="({name, pivot}) in debts" :key="pivot.id" class="debts-list-item" 
+            :class="[
+                (pivot.unit_price > 0) ? 'debt_balance' : 'discount_balance',
+                (pivot.filed_at) ? 'is_filed':''
+            ]" >
             <span class="price-detail-tag" :class="(Boolean(pivot.was_paid)) ? 'was-paid': ''">${{addThousandthPoint((pivot.unit_price * pivot.quantity))}} {{name}}</span>
             <button class="edit-tag" @click="$emit('handleEditDebt', pivot.id)">
                 <i class='bx bx-edit bx-sm'></i>
             </button>
             <button class="delete-tag" @click="$emit('handleDeleteDebt', pivot.id)">
-                <i class='bx bx-trash bx-sm'></i>
+                <i class='bx bx-sm' :class="(!pivot.was_paid) ? 'bx-dollar' : 'bx-undo'"></i>
+            </button>
+            <button class="file-tag" @click="$emit('handleFileDebt', pivot.id)">
+                <i v-if="!pivot.filed_at" class='bx bx-folder-plus bx-sm'></i>
+                <i v-else class='bx bx-folder-minus bx-sm'></i>
             </button>
         </li>
     </ul>
@@ -42,12 +50,16 @@
 }
 .price-detail-tag{}
 .edit-tag,
-.delete-tag{
+.delete-tag,
+.file-tag{
     color: var(--color-titles);
 }
 
 .was-paid{
     text-decoration: line-through;
+}
+.is_filed{
+    color: color-mix(in srgb, 80% var(--chocolate-dark), 20% var(--marshmallow));
 }
 
 @media (width >= 768px) {

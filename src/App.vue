@@ -9,6 +9,7 @@
   import { onMounted, ref, computed} from 'vue';
   import useDefaulters from './composables/useDefaulters';
   import DefaulterSearchForm from './components/DefaulterSearchForm.vue';
+  import { getTodayDateFormated } from './helpers/Dates';
 
   const customPaginatedBy = 9
 
@@ -138,6 +139,33 @@
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
+  const handleFileDebt = async(debt_id_selected) => { 
+    console.log('FILE DEBT executed', debt_id_selected); 
+    const thingSelected = defaulterDebts.value.find( ({pivot}) => pivot.id === debt_id_selected )
+    const { name } = thingSelected
+    const { quantity, unit_price, filed_at } = thingSelected.pivot
+    
+    const toFileOrNot = (!filed_at) ? 'ARCHIVAR' : 'DESARCHIVAR'
+    const filedAtValue = (!filed_at) ? getTodayDateFormated() : null
+    const confirmFileDebt = confirm(`¿Esta seguro de ${toFileOrNot} '${name} $${unit_price * quantity}'?`)
+    if(!confirmFileDebt) return
+
+    const fileDebtResponse = await createOrUpdateDebt(debt_id_selected, {filed_at: filedAtValue})
+    const responseIsGood = fileDebtResponse.statusText === 'OK'
+    if(!responseIsGood){
+      const errorMessage = `Error al tratar de ${toFileOrNot} la deuda ${name}: ${fileDebtResponse.message}. Intentalo de nuevo mas tarde.`
+      console.error(errorMessage);
+      alert(errorMessage);
+      return
+    }
+
+    const { debts, ...restInfo } = fileDebtResponse.data.defaulter
+    defaulterInfo.value = restInfo
+    defaulterDebts.value = debts
+
+    await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
+  }
+
   const cleanPreviousDefaulterInfo = () => { 
     defaulterInfo.value = null
     defaulterDebts.value = []
@@ -192,7 +220,7 @@
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal">
         <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/> <!-- 77 -->
         <div class="divider-modal"></div>
-        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt"/> <!-- 77 -->
+        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt"/> <!-- 77 -->
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
     </main>

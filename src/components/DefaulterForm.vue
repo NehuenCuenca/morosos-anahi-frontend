@@ -51,7 +51,7 @@
 <script setup>
   import { ref, onMounted, nextTick, onUpdated } from 'vue';
   import useDefaulters from '../composables/useDefaulters';
-  import { formatDate } from '../helpers/Dates.js';
+  import { getTodayDateFormated } from '../helpers/Dates.js';
 
   const emits = defineEmits(['handle-submit-form', 'handle-clean-thing'])
 
@@ -84,10 +84,8 @@
   }
 
   const setTodayOnDateInput = () => { 
-    const timeElapsed = Date.now();
-    const today = new Date(timeElapsed);
     const retirementDateInput = rootFormElement.value.querySelector('#input-datetime')
-    retirementDateInput.value = formatDate(today)
+    retirementDateInput.value = getTodayDateFormated()
   }
 
   const handleSubmit = async(event) => { 

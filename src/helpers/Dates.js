@@ -11,3 +11,10 @@ export const formatDate = (date) => {
 
     return [year, month, day].join('-');
 }
+
+export const getTodayDateFormated = () => { 
+    const timeElapsed = Date.now();
+    const today = new Date(timeElapsed);
+
+    return formatDate(today)
+}

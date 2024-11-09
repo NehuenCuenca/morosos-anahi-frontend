@@ -23,6 +23,7 @@
   const filters = ref([
     {bool: false, caption: "Alfabeticamente", paramName: 'orderByAlphabet'},
     {bool: false, caption: "Mayor deudor", paramName: 'orderByLargestDebtor'},
+    {bool: false, caption: "Antigüedad", paramName: 'orderByOldestCreated'},
   ])
 
   const activeFilter = ref('')
@@ -81,7 +82,8 @@
   }
   
   .filters-by-list{
-    gap: .5rem;
+    gap: 0;
+    justify-content: space-between;
   }
 
   .filters-by__filter-button{
@@ -92,8 +94,11 @@
   .filters-content{
     width: 95%;
   }
+  
   .filters-by-list{
-    width: 100%;
+    align-self: start;
+    justify-content: flex-start;
+    gap: 2rem;
   }
 
   .filters-indicator-text{

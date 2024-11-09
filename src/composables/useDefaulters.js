@@ -25,7 +25,7 @@ const useDefaulters = () => {
     };  
 
     const getAllThings = async(callParams) => {
-      // const { paginatedBy, page, orderByLastestRecent, orderByAlphabet } = callParams
+      // const { paginatedBy, page, orderByAlphabet } = callParams
       try {
         const response = await instance.get('/things', {
           params: {

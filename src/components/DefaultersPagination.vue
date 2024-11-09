@@ -79,11 +79,20 @@ const updatePage = (newPage) => {
 
 @media (width >= 1280px) {
   .pagination{
-    justify-content: center;
+    justify-content: end;
+  }
+
+  .direction-button,
+  .page-button{
+    font: normal normal normal 500 2.2rem var(--default-font);
+  }
+
+  .page-button_active{
+    font: normal normal normal 700 2.5rem var(--default-font);
   }
 
   .pagination__numbers{
-    width: 30%;
+    width: 15%;
     justify-content: space-around;
   }
 }

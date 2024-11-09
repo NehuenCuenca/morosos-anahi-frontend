@@ -68,8 +68,8 @@
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
   })
 
-  const setNewDefaulters = async({paginatedBy, page=1, orderByLastestRecent = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
-    const getAllDefaultersResponse = await getAllDefaulters({ paginatedBy, page, orderByLastestRecent, orderByAlphabet, orderByLargestDebtor, })
+  const setNewDefaulters = async({paginatedBy, page=1, orderByOldestCreated = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
+    const getAllDefaultersResponse = await getAllDefaulters({ paginatedBy, page, orderByOldestCreated, orderByAlphabet, orderByLargestDebtor, })
     const responseIsGood = getAllDefaultersResponse.statusText === 'OK'
     if(!responseIsGood){
       errorWhenLoadAllDefaulters.value = { bool: true, message: `Error al cargar los morosos: ${getAllDefaultersResponse.message}` }

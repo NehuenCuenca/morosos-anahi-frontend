@@ -1,20 +1,8 @@
-export const formatDate = (date) => {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2) 
-        month = '0' + month;
-    if (day.length < 2) 
-        day = '0' + day;
-
-    return [year, month, day].join('-');
-}
-
 export const getTodayDateFormated = () => { 
-    const timeElapsed = Date.now();
-    const today = new Date(timeElapsed);
+    const [ date, time ] = new Date().toLocaleString("es-AR", {timeZone: "America/Argentina/Buenos_Aires",  hour12: false}).split(', ')
+    const reversedDate = date.split('/').reverse().join('-')
+    const slicedTime = time.slice(0,5)
+    console.log(`${reversedDate}T${slicedTime}`);
 
-    return formatDate(today)
+    return `${reversedDate}T${slicedTime}`
 }

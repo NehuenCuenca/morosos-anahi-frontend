@@ -32,7 +32,7 @@
 
     <div class="field">
       <label for="input-datetime" class="field__label">Fecha</label>
-      <input type="date" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at" class="field__input"
+      <input type="datetime-local" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at" class="field__input"
         id="input-datetime" name="Fecha_retiro">
     </div>
 
@@ -99,7 +99,7 @@
       Precio_por_unidad: Number(Precio_por_unidad),
       Cantidad: Number(Cantidad),
       Detalle: Detalle.trim(),
-      Fecha_retiro ,
+      Fecha_retiro,
       // Fue_pagado: (Fue_pagado === 'on') ? true : false // not necessary to validate
     }
 
@@ -119,6 +119,8 @@
     } else {
       await updateDebt(sanitizedFields)
     }
+
+    loadThingsNames()
   }
 
   const createDebt = async(newDebt) => { 
@@ -153,7 +155,6 @@
 
   const updateDebt = async(debtToUpdate) => { 
     console.log('updateDebt | EDITAR MOROSO (RU)', debtToUpdate);
-    
     const selectedAThingToEdit = !!props.thingInfo
     
     if( !selectedAThingToEdit ) {
@@ -165,7 +166,7 @@
       unit_price: debtToUpdate.Precio_por_unidad,
       quantity: debtToUpdate.Cantidad,
       retired_at: debtToUpdate.Fecha_retiro,
-      filed_at: null, // REMINDER: CHANGE THIS WHEN THE FILED AT BUTTON IS ADDED
+      filed_at: props.thingInfo.pivot.filed_at,
       was_paid: debtToUpdate.Fue_pagado
     }
 
@@ -305,9 +306,12 @@
   text-underline-offset: 5px;
 }
 
+.field:has([type="datetime-local"]), .field:has([for="input-was-paid"]) {
+  width: 100%;
+}
+
 .field:has([for="input-was-paid"]) {
   flex-direction: column;
-  justify-content: start;
   align-items: center;
   gap: .5rem;
 }
@@ -353,6 +357,14 @@
     font: normal normal normal 2.2rem var(--display-font);
   }
 
+  .field:has([type="datetime-local"]) {
+    width: 60%;
+  }
+
+  .field:has([for="input-was-paid"]) {
+    width: 25%;
+  }
+
   .field:has([for="input-was-paid"]) {
     place-self: end;
   }
@@ -363,7 +375,16 @@
 }
 
 
-/* @media (width >= 1280px) {} */
+@media (width >= 1280px) {
+  .field:has([type="datetime-local"]) {
+    width: 35%;
+  }
+
+  .field:has([for="input-was-paid"]) {
+    width: 15%;
+  }
+}
+
 @media (width >= 1300px) {
   .defaulter-form {
     gap: 2rem 1.5rem;

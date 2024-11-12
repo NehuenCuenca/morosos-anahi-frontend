@@ -32,7 +32,7 @@
 
     <div class="field">
       <label for="input-datetime" class="field__label">Fecha</label>
-      <input type="datetime-local" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at" class="field__input"
+      <input type="datetime-local" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at || todayFormatedDate" class="field__input"
         id="input-datetime" name="Fecha_retiro">
     </div>
 
@@ -50,6 +50,7 @@
 
 <script setup>
   import { ref, onMounted, nextTick, onUpdated } from 'vue';
+  import { useToast } from "vue-toastification";
   import useDefaulters from '../composables/useDefaulters';
   import { getTodayDateFormated } from '../helpers/Dates.js';
 
@@ -65,17 +66,15 @@
   const copyAfterSubmit = ref(null)
   const defaultersNames = ref([])
   const thingsNames = ref([])
+  const todayFormatedDate = ref('')
 
   const { createOrUpdateDebt, getAllDefaulters, getAllThings } = useDefaulters()
+  const toast = useToast();
 
   onMounted( async() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
     await loadDefaultersNames()
     await loadThingsNames()
-  })
-
-  onUpdated(() => {
-    if(!props.thingInfo) { setTodayOnDateInput() }
   })
 
   const resetAfterSubmit = () => {
@@ -84,8 +83,8 @@
   }
 
   const setTodayOnDateInput = () => { 
-    const retirementDateInput = rootFormElement.value.querySelector('#input-datetime')
-    retirementDateInput.value = getTodayDateFormated()
+    const today = getTodayDateFormated()
+    todayFormatedDate.value = today
   }
 
   const handleSubmit = async(event) => { 
@@ -144,10 +143,17 @@
     if (!responseIsGood) {
       const errorMessage = `Error al tratar de guardar una nueva deuda: ${newDebtResponse?.response?.data.message} ${newDebtResponse.message}.`
       console.error(errorMessage)
-      alert(errorMessage)
+      toast.error(
+        errorMessage, { 
+        position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+      });
       return
     }
 
+    toast.success(
+      `El moroso '${newDebtResponse.data.defaulter.name}' ha sido CREADO exitosamente.`, { 
+      position: "bottom-right", timeout: 5000, closeOnClick: true, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+    });
     emits('handle-submit-form', { responseIsGood, defaulter: newDebtResponse.data.defaulter })
     resetAfterSubmit()
     return
@@ -181,10 +187,17 @@
     if (!responseIsGood) {
       const errorMessage = `Error al tratar de guardar una nueva deuda: ${updatedDebtResponse?.response?.data.message} (${updatedDebtResponse.message}).`
       console.error(errorMessage)
-      alert(errorMessage)
+      toast.error(
+        errorMessage, { 
+        position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+      });
       return
     }
 
+    toast.success(
+      `El moroso '${updatedDebtResponse.data.defaulter.name}' ha sido EDITADO exitosamente.`, { 
+      position: "bottom-right", timeout: 5000, closeOnClick: true, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+    });
     emits('handle-submit-form', { responseIsGood, defaulter: updatedDebtResponse.data.defaulter })
     resetAfterSubmit()
     return

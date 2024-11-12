@@ -10,6 +10,8 @@
   import useDefaulters from './composables/useDefaulters';
   import DefaulterSearchForm from './components/DefaulterSearchForm.vue';
   import { getTodayDateFormated } from './helpers/Dates';
+  import { useToast } from "vue-toastification";
+
 
   const customPaginatedBy = 9
 
@@ -49,6 +51,10 @@
     orderBy.value = newOrder
     paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1, ...newOrder }
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
+    toast.info(
+      `Ordenamiento aplicado con exito.`, { 
+      position: "bottom-right", timeout: 2000, closeOnClick: true, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+    });
   }
 
   const closeModal = () => { 
@@ -62,6 +68,8 @@
     getDefaulterInfoById,
     createOrUpdateDebt
   } = useDefaulters()
+
+  const toast = useToast();
 
   onMounted( async() => {
     paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1 }

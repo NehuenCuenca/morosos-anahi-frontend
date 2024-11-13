@@ -108,11 +108,11 @@ const updatePage = (newPage) => {
 
   .direction-button,
   .page-button{
-    font: normal normal normal 500 2rem var(--default-font);
+    font: normal normal normal 500 1.7rem var(--default-font);
   }
 
   .page-button_active{
-    font: normal normal normal 700 2.5rem var(--default-font);
+    font: normal normal normal 700 2rem var(--default-font);
   }
 }
 </style>

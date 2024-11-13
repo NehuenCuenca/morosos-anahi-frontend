@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, nextTick, onUpdated } from 'vue';
+  import { ref, onMounted, nextTick } from 'vue';
   import { useToast } from "vue-toastification";
   import useDefaulters from '../composables/useDefaulters';
   import { getTodayDateFormated } from '../helpers/Dates.js';

@@ -103,7 +103,11 @@
 
   .filters-indicator-text{
     align-self: start;
+    font: normal normal normal 500 1.7rem var(--display-font);
   }
-  
+
+  .filters-by__filter-button{
+    font: normal normal normal 400 1.6rem var(--default-font);
+  }
 }
 </style>

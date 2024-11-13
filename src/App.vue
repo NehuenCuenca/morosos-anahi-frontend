@@ -256,7 +256,6 @@ body:has(.modal-container){
 .content-title{
   font: normal normal normal 2.5rem var(--display-font);
   color: var(--color-titles);
-  margin: 0 0 auto 0;
 }
 
 .add-and-search{
@@ -352,8 +351,31 @@ body:has(.modal-container){
 }
 
 @media (width >= 1280px) {
+  #app{
+    height: 100dvh;
+  }
+
+  .principal-container{
+    height: 100dvh;
+  }
+
+  .principal-container__content{
+    height: 100%;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .content-title{
+   font: normal normal normal 3.3rem var(--display-font);
+  }
+
   .add-and-search{
     justify-content: space-around;
+    font: normal normal normal 1.9rem var(--display-font);
+  }
+
+  .add-defaulter-button__text{
+    font: normal normal normal 1.9rem var(--display-font);
   }
 }
 </style>

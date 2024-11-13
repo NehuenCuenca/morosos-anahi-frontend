@@ -126,6 +126,15 @@ input:-webkit-autofill:active{
     }
 }
 @media (width >= 1280px) {
-    
+    .search-defaulter-form__input{
+        font: normal normal normal 1.9rem var(--display-font);
+    }
+
+    .search-defaulter-form__input::placeholder{
+        font: normal normal normal 1.9rem var(--display-font);
+    }
+    .search-defaulter-form__validation-message{
+        font: normal normal 600 1.6rem var(--default-font);
+    }
 }
 </style>

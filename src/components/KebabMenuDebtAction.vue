@@ -112,7 +112,7 @@
     position: absolute;
     left: -250%;
     top: 2.5rem;
-    z-index: 9;
+    z-index: var(--z-index-kebabMenu);
     transition: all 0.25s ease-out;
     transform: scale(0);
     transform-origin: 100% 0;

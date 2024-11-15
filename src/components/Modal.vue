@@ -18,7 +18,7 @@
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 5;
+    z-index: var(--z-index-modal);
     height: 100vh;
     width: 100vw;
     background-color: var(--modal-fade-bg);

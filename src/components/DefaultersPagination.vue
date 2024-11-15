@@ -1,10 +1,10 @@
 <template>
     <div class="pagination">
-      <button class="direction-button" @click="updatePage(pagination.current_page-1)" type="button">Anterior</button>
+      <button v-if="props.pagination.current_page != 1" class="direction-button" @click="updatePage(pagination.current_page-1)" type="button">Anterior</button>
       <div class="pagination__numbers">
         <button v-for="item in pagination.last_page" class="page-button" :class="item === pagination.current_page ? ' page-button_active': ''" @click="updatePage(item)" type="button">{{ item }}</button>
       </div>
-      <button class="direction-button" @click="updatePage(pagination.current_page+1)" type="button">Siguiente</button>
+      <button v-if="props.pagination.current_page != props.pagination.last_page" class="direction-button" @click="updatePage(pagination.current_page+1)" type="button">Siguiente</button>
     </div>
 </template>
 
@@ -16,7 +16,6 @@ const props = defineProps({
 const emit = defineEmits(['handle-pagination-update'])
 
 const updatePage = (newPage) => { 
-
   if( newPage <= 0 ||
       newPage > props.pagination.last_page ||
       newPage === props.pagination.current_page

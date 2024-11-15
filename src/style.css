@@ -15,6 +15,9 @@
   --debt_balance: #6F0000;
   --modal-fade-bg: rgba(48,34,34, 80%);
   --input-text-bg: rgba(107, 79, 79, 0.6);
+
+  --z-index-modal: 1;
+  --z-index-kebabMenu: 2;
 }
 
 [data-theme="light"] {

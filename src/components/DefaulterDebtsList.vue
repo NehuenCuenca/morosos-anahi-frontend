@@ -33,7 +33,7 @@
 
 <script setup>
     import { addThousandthPoint } from '../helpers/Balances';
-    import KebabMenuDebtAction from './KebabMenuDebtAction.vue'
+    import KebabMenuDebtAction from './KebabMenuDebtAction.vue';
 
     const props = defineProps({
         debts: Array,

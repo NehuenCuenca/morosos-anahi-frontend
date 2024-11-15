@@ -14,9 +14,8 @@
 </template>
 
 <script setup>
-
-  import DefaulterFilterButton from './DefaulterFilterButton.vue';
   import { ref } from 'vue';
+  import DefaulterFilterButton from './DefaulterFilterButton.vue';
 
   const emits = defineEmits(['handle-order-update'])
 

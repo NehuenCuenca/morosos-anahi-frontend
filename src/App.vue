@@ -1,17 +1,16 @@
 <script setup>
-  import DefaulterDebtsList from './components/DefaulterDebtsList.vue';
+  import { computed, onMounted, ref } from 'vue';
+  import { useToast } from "vue-toastification";
   import DefaulterBalancesList from './components/DefaulterBalancesList.vue';
+  import DefaulterDebtsList from './components/DefaulterDebtsList.vue';
   import DefaulterForm from './components/DefaulterForm.vue';
+  import DefaulterSearchForm from './components/DefaulterSearchForm.vue';
   import DefaultersFilters from './components/DefaultersFilters.vue';
   import DefaultersList from './components/DefaultersList.vue';
   import DefaultersPagination from './components/DefaultersPagination.vue';
   import Modal from './components/Modal.vue';
-  import { onMounted, ref, computed} from 'vue';
   import useDefaulters from './composables/useDefaulters';
-  import DefaulterSearchForm from './components/DefaulterSearchForm.vue';
   import { getTodayDateFormated } from './helpers/Dates';
-  import { useToast } from "vue-toastification";
-
 
   const customPaginatedBy = 9
 

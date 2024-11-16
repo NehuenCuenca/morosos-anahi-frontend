@@ -50,10 +50,6 @@
     orderBy.value = newOrder
     paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1, ...newOrder }
     await setNewDefaulters(paramsUsedToGetDefaulters.value)
-    toast.info(
-      `Ordenamiento aplicado con exito.`, { 
-      position: "bottom-right", timeout: 2000, closeOnClick: true, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
-    });
   }
 
   const closeModal = () => { 
@@ -103,7 +99,10 @@
     if( !responseIsGood  ){
       const errorMessage = `Error al traer la informacion del moroso y sus deudas: ${getDefaulterInfoResponse.message}. Intentalo de nuevo mas tarde.`
       console.error(errorMessage);
-      alert(errorMessage);
+      toast.error(
+        errorMessage, { 
+        position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+      });
       errorWhenLoadSingleDefaulter.value = { bool: true, message: errorMessage};
       closeModal()
       return
@@ -135,7 +134,10 @@
     if(!responseIsGood){
       const errorMessage = `Error al tratar de ${crossOutOrDebtText} la deuda ${name}: ${softDeletedDebtResponse.message}. Intentalo de nuevo mas tarde.`
       console.error(errorMessage);
-      alert(errorMessage);
+      toast.error(
+        errorMessage, { 
+        position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+      });
       return
     }
 
@@ -162,7 +164,10 @@
     if(!responseIsGood){
       const errorMessage = `Error al tratar de ${toFileOrNot} la deuda ${name}: ${fileDebtResponse.message}. Intentalo de nuevo mas tarde.`
       console.error(errorMessage);
-      alert(errorMessage);
+      toast.error(
+        errorMessage, { 
+        position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+      });
       return
     }
 

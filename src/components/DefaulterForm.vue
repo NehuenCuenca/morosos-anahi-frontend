@@ -51,7 +51,7 @@
 <script setup>
   import { nextTick, onMounted, ref } from 'vue';
   import { useToast } from "vue-toastification";
-  import useDefaulters from '../composables/useDefaulters';
+  import useApiRequests from '../composables/useAPIRequests.js';
   import { getTodayDateFormated } from '../helpers/Dates.js';
 
   const emits = defineEmits(['handle-submit-form', 'handle-clean-thing'])
@@ -68,7 +68,7 @@
   const thingsNames = ref([])
   const todayFormatedDate = ref('')
 
-  const { createOrUpdateDebt, getAllDefaulters, getAllThings } = useDefaulters()
+  const { createOrUpdateDebt, getAllDefaulters, getAllThings } = useApiRequests()
   const toast = useToast();
 
   onMounted( async() => {

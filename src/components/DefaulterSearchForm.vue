@@ -15,7 +15,7 @@
 
 <script setup>
     import { computed, ref } from 'vue';
-    import useDefaulters from '../composables/useDefaulters';
+    import useApiRequests from '../composables/useAPIRequests';
 
     const emits = defineEmits(['handle-submit-search-defaulter'])
 
@@ -23,7 +23,7 @@
     const nameFromInput = ref('')
     const validationError = ref('')
 
-    const { getAllDefaulters } = useDefaulters()
+    const { getAllDefaulters } = useApiRequests()
 
     const handleClickInputElement = async(event) => { 
         const defaultersPromise = await getAllDefaulters({ orderByAlphabet: true })

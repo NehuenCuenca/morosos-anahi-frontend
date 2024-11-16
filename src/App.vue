@@ -9,7 +9,7 @@
   import DefaultersList from './components/DefaultersList.vue';
   import DefaultersPagination from './components/DefaultersPagination.vue';
   import Modal from './components/Modal.vue';
-  import useDefaulters from './composables/useDefaulters';
+  import useApiRequests from './composables/useAPIRequests';
   import { getTodayDateFormated } from './helpers/Dates';
 
   const customPaginatedBy = 9
@@ -66,7 +66,7 @@
     getAllDefaulters, 
     getDefaulterInfoById,
     createOrUpdateDebt
-  } = useDefaulters()
+  } = useApiRequests()
 
   const toast = useToast();
 
@@ -110,9 +110,9 @@
     }
 
     errorWhenLoadSingleDefaulter.value = { bool: false, message:`` };
-    const { debts, ...restInfo } = getDefaulterInfoResponse.data.defaulter //77
+    const { debts, ...restInfo } = getDefaulterInfoResponse.data.defaulter 
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts //77
+    defaulterDebts.value = debts 
   }
 
   const handleEditDebt = (debt_id_selected) => { 
@@ -184,10 +184,10 @@
       closeModal() 
       userAction.value = 'RU'
     }
-    const { debts, ...restInfo } = defaulter //77
+    const { debts, ...restInfo } = defaulter 
     
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts //77
+    defaulterDebts.value = debts 
     cleanThingSelected()
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
@@ -210,7 +210,7 @@
         </button>
 
         <Modal :userAction="userAction" v-if="userAction.includes('C')" @handle-close-modal="closeModal">
-          <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="null" @handle-submit-form="updateLocalDefaulter" @clean-thing-selected="cleanThingSelected"/> <!-- 77 -->
+          <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="null" @handle-submit-form="updateLocalDefaulter" @clean-thing-selected="cleanThingSelected"/>
         </Modal>
 
         <DefaulterSearchForm @handle-submit-search-defaulter="readOrUpdateDefaulter"/>
@@ -225,9 +225,9 @@
       <span class="msg-error-after-load" v-else>{{ errorWhenLoadAllDefaulters.message }}</span>
 
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal">
-        <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/> <!-- 77 -->
+        <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/>
         <div class="divider-modal"></div>
-        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt"/> <!-- 77 -->
+        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt"/>
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
     </main>

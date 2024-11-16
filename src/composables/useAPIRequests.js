@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const useDefaulters = () => {
+const useApiRequests = () => {
     const LOCAL_URL = import.meta.env.VITE_LOCAL_URL
     
     const instance = axios.create({
@@ -19,7 +19,7 @@ const useDefaulters = () => {
         });
         return response
       } catch (error) {
-        console.error("EXPLOTO ESTO --->: ", error);
+        console.error("Error al intentar conseguir los morosos: ", error);
         return error
       }
     };  
@@ -34,7 +34,7 @@ const useDefaulters = () => {
         });
         return response
       } catch (error) {
-        console.error("EXPLOTO ESTO --->: ", error);
+        console.error("Error al tratar de conseguir todos los productos registrados: ", error);
         return error
       }
     };   
@@ -44,17 +44,17 @@ const useDefaulters = () => {
           const response = await instance.get(`/defaulters/${defaulterId}`);
           return response
         } catch (error) {
-            console.error("EXPLOTO ESTO --->: ", error);
+            console.error(`Error al tratar de conseguir el moroso (nro ${defaulterId}): `, error);
             return error
         }
     }
     
     const getThingsOfDefaulterById = async(defaulterId) => { 
         try {
-          const response = await instance.get(`/defaulters/${defaulterId}/things`); //77
+          const response = await instance.get(`/defaulters/${defaulterId}/things`); 
           return response
         } catch (error) {
-          console.error("EXPLOTO ESTO --->: ", error);
+          console.error(`Error al tratar de conseguir las deudas del moroso (nro ${defaulterId}): `, error);
           return error
         }
     }
@@ -65,7 +65,7 @@ const useDefaulters = () => {
           const response = await instance.post('/defaulters', defaulterRecord);
           return response
         } catch (error) {
-          console.error("EXPLOTO ESTO --->: ", error);
+          console.error("Error al intentar crear un nuevo moroso: ", error);
           return error
         }
       } else { // when UPDATING...
@@ -73,7 +73,7 @@ const useDefaulters = () => {
           const response = await instance.put(`/defaulters/${defaulterId}`, defaulterRecord);
           return response
         } catch (error) {
-          console.error("EXPLOTO ESTO --->: ", error);
+          console.error(`Error al tratar de editar el moroso (nro ${defaulterId}): `, error);
           return error
         }
       }
@@ -83,18 +83,18 @@ const useDefaulters = () => {
       const { thing_id } = thingToSend
       if(thing_id === -1){ // when CREATING...
         try {
-          const response = await instance.post('/things', thingToSend); //77
+          const response = await instance.post('/things', thingToSend); 
           return response
         } catch (error) {
-          console.error("EXPLOTO ESTO --->: ", error);
+          console.error("Error al tratar de crear un nuevo producto: ", error);
           return error
         }
       } else { // when UPDATING...
         try {
-          const response = await instance.put(`/things/${thing_id}`, thingToSend); //77
+          const response = await instance.put(`/things/${thing_id}`, thingToSend); 
           return response
         } catch (error) {
-          console.error("EXPLOTO ESTO --->: ", error);
+          console.error(`Error al tratar de editar el producto (nro ${thing_id}): `, error);
           return error
         }
       }
@@ -106,7 +106,7 @@ const useDefaulters = () => {
           const response = await instance.post('/debts', debtRecord);
           return response
         } catch (error) {
-          console.error("ERROR AL CREAR UNA NUEVA DEUDA: ", error);
+          console.error("Error al intentar crear una nueva deuda: ", error);
           return error
         }
       } else { // when UPDATING...
@@ -114,7 +114,7 @@ const useDefaulters = () => {
           const response = await instance.put(`/debts/${debtId}`, debtRecord);
           return response
         } catch (error) {
-          console.error("ERROR AL EDITAR UNA DEUDA EXISTENTE: ", error);
+          console.error(`Error al intentar editar una deuda (nro ${debtId}): `, error);
           return error
         }
       }
@@ -131,4 +131,4 @@ const useDefaulters = () => {
     };
   };
   
-  export default useDefaulters;
+  export default useApiRequests;

@@ -1,5 +1,5 @@
 <script setup>
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, ref, watch } from 'vue';
   import { useToast } from "vue-toastification";
   import DefaulterBalancesList from './components/DefaulterBalancesList.vue';
   import DefaulterDebtsList from './components/DefaulterDebtsList.vue';
@@ -37,19 +37,16 @@
   
   const handlePaginationUpdate = async(newPage) => {
     paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: newPage, ...orderBy.value }
-    await setNewDefaulters(paramsUsedToGetDefaulters.value)
   }
 
   const handleOrderUpdate = async(newOrder) => {
     if(!newOrder) {
       paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1 }
-      await setNewDefaulters(paramsUsedToGetDefaulters.value)
       return
     }
 
     orderBy.value = newOrder
     paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1, ...newOrder }
-    await setNewDefaulters(paramsUsedToGetDefaulters.value)
   }
 
   const closeModal = () => { 
@@ -68,11 +65,10 @@
 
   onMounted( async() => {
     paramsUsedToGetDefaulters.value = { paginatedBy: customPaginatedBy, page: 1 }
-    await setNewDefaulters(paramsUsedToGetDefaulters.value)
   })
 
   const setNewDefaulters = async({paginatedBy, page=1, orderByOldestCreated = false, orderByAlphabet = false, orderByLargestDebtor = false}) => { 
-    const getAllDefaultersResponse = await getAllDefaulters({ paginatedBy, page, orderByOldestCreated, orderByAlphabet, orderByLargestDebtor, })
+    const getAllDefaultersResponse = await getAllDefaulters({ paginatedBy, page, orderByOldestCreated, orderByAlphabet, orderByLargestDebtor })
     const responseIsGood = getAllDefaultersResponse.statusText === 'OK'
     if(!responseIsGood){
       errorWhenLoadAllDefaulters.value = { bool: true, message: `Error al cargar los morosos: ${getAllDefaultersResponse.message}` }
@@ -86,6 +82,8 @@
     defaulters.value = data
     errorWhenLoadAllDefaulters.value = { bool: false, message: '' }
   }
+
+  watch(paramsUsedToGetDefaulters, async (newParams, oldParams) => setNewDefaulters(newParams))
 
   const readOrUpdateDefaulter = async({ defaulterId }) => {
     cleanPreviousDefaulterInfo()

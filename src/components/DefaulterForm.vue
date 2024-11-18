@@ -44,7 +44,7 @@
 
     <button type="button" @click="resetThingsFields" class="button-reset-thing" title="Limpiar">Limpiar item</button>
     <button type="submit" class="submit-new-defaulter-button" title="Guardar">Guardar</button>
-    <span v-if="validationError.length > 0" class="validation-error-msg">{{ validationError }}</span>
+    <span class="validation-error-msg"></span>
   </form>
 </template>
 
@@ -52,6 +52,7 @@
   import { nextTick, onMounted, ref } from 'vue';
   import { useToast } from "vue-toastification";
   import useApiRequests from '../composables/useAPIRequests.js';
+  import useCustomForm from '../composables/useCustomForm.js'
   import { getTodayDateFormated } from '../helpers/Dates.js';
 
   const emits = defineEmits(['handle-submit-form', 'handle-clean-thing'])
@@ -70,6 +71,7 @@
 
   const { createOrUpdateDebt, getAllDefaulters, getAllThings } = useApiRequests()
   const toast = useToast();
+
 
   onMounted( async() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
@@ -90,34 +92,23 @@
   const handleSubmit = async(event) => { 
     const formElement = event.target
     const currentCRUDOperation = formElement.getAttribute('data-CRUD')
+    
+    const { getInputValuesSanitized, hasFalsyInputValues, showRequiredInputsValidationError, cleanValidationError } = useCustomForm(formElement)
+    cleanValidationError()
 
-    const { Nombre_moroso, Precio_por_unidad, Cantidad, Detalle, Fecha_retiro, Fue_pagado } = Object.fromEntries(new FormData(formElement))
-
-    const sanitizedFields = {
-      Nombre_moroso: Nombre_moroso.trim(),
-      Precio_por_unidad: Number(Precio_por_unidad),
-      Cantidad: Number(Cantidad),
-      Detalle: Detalle.trim(),
-      Fecha_retiro,
-      // Fue_pagado: (Fue_pagado === 'on') ? true : false // not necessary to validate
-    }
-
-    const keyNamesOfFields = Object.keys(sanitizedFields)
-    const falsyFields = Object.values(sanitizedFields).map( (val, index) => !val && keyNamesOfFields[index]).filter(val => val)
-
-    if (falsyFields.length > 0) { 
-      showValidationErrors(falsyFields) 
-      reFillForm(sanitizedFields)
+    const sanitizedInputs = getInputValuesSanitized()
+    const { boolean: hasFalsyInputs, falsyInputs } = hasFalsyInputValues(sanitizedInputs)
+    if( hasFalsyInputs ){
+      showRequiredInputsValidationError(falsyInputs)
+      reFillForm(sanitizedInputs)
       return
     }
 
-    sanitizedFields.Fue_pagado = (Fue_pagado === 'on') ? true : false
-
-    if(currentCRUDOperation === 'C'){
-      await createDebt(sanitizedFields)
+    if( currentCRUDOperation === 'C' ){
+      await createDebt(sanitizedInputs)
     } else {
-      await updateDebt(sanitizedFields)
-    }
+      await updateDebt(sanitizedInputs)
+    }    
 
     loadThingsNames()
   }
@@ -132,8 +123,8 @@
         unit_price: newDebt.Precio_por_unidad,
         quantity: newDebt.Cantidad,
         retired_at: newDebt.Fecha_retiro,
-        filed_at: null, // REMINDER: CHANGE THIS WHEN THE FILED AT BUTTON IS ADDED
-        was_paid: newDebt.Fue_pagado
+        filed_at: null,
+        was_paid: (newDebt?.Fue_pagado) ? true : false
       }]
     }
 
@@ -173,13 +164,13 @@
       quantity: debtToUpdate.Cantidad,
       retired_at: debtToUpdate.Fecha_retiro,
       filed_at: props.thingInfo.pivot.filed_at,
-      was_paid: debtToUpdate.Fue_pagado
+      was_paid: (debtToUpdate?.Fue_pagado) ? true : false
     }
 
-    const defaulterNameWasEdited = debtToUpdate.Nombre_moroso !== props.defaulterInfo.name
-    const thingNameWasEdited = selectedAThingToEdit && (debtToUpdate.Detalle !== props.thingInfo.name)
-    if(defaulterNameWasEdited) { suitableFieldsToSend.new_defaulter_name = debtToUpdate.Nombre_moroso }
-    if(thingNameWasEdited) { suitableFieldsToSend.new_thing_name = debtToUpdate.Detalle }
+    const wantsToEditDefaulterName = debtToUpdate.Nombre_moroso !== props.defaulterInfo.name
+    const wantsToEditThingName = selectedAThingToEdit && (debtToUpdate.Detalle !== props.thingInfo.name)
+    if( wantsToEditDefaulterName ) { suitableFieldsToSend.new_defaulter_name = debtToUpdate.Nombre_moroso }
+    if( wantsToEditThingName ) { suitableFieldsToSend.new_thing_name = debtToUpdate.Detalle }
 
     const updatedDebtResponse = await createOrUpdateDebt(props.thingInfo.pivot.id, suitableFieldsToSend)
     console.log(updatedDebtResponse);
@@ -203,17 +194,10 @@
     return
   }
 
-  const showValidationErrors = (fieldsWithErrors) => { 
-    const concatenatedFields = fieldsWithErrors.map(field => field.toUpperCase().replaceAll('_', ' ')).join(', ')
-    console.error(`No se envió el formulario ya que hay campos obligatorios que estan vacios: ${concatenatedFields}.`)
-    validationError.value = `Hay campos obligatorios que estan vacios: ${concatenatedFields}.`  
-  }
-
-  const reFillForm = (sanitizedFields) => { 
-    copyAfterSubmit.value = { ...sanitizedFields }
+  const reFillForm = (sanitizedInputs) => { 
+    copyAfterSubmit.value = { ...sanitizedInputs }
     if(!props.thingInfo){ setTodayOnDateInput()}
   }
-
 
   const resetThingsFields = (event) => {
     emits('handle-clean-thing')

@@ -1,7 +1,7 @@
 <template>
     <form class="search-defaulter-form" @click.once="handleClickInputElement" @submit.prevent="handleSubmit">
         <div class="search-defaulter-input-container">
-            <input list="defaulter-names" v-model="nameFromInput" class="search-defaulter-form__input" name="search-defaulter-input" placeholder="Buscar por nombre">
+            <input list="defaulter-names" v-model="nameFromInput" class="search-defaulter-form__input" name="Nombre_moroso" placeholder="Buscar por nombre">
             <datalist id="defaulter-names"> 
                 <option v-for="({name}) in suggestedNames" :value="name"></option>
             </datalist>
@@ -9,19 +9,19 @@
                 <i class='bx bx-search-alt-2 bx-md'></i>
             </button>
         </div>
-        <span class="search-defaulter-form__validation-message">{{ validationError }}</span>
+        <span class="validation-error-msg"></span>
     </form>
 </template>
 
 <script setup>
     import { computed, ref } from 'vue';
     import useApiRequests from '../composables/useAPIRequests';
+    import useCustomForm from '../composables/useCustomForm';
 
     const emits = defineEmits(['handle-submit-search-defaulter'])
 
     const defaultersNames = ref([])
     const nameFromInput = ref('')
-    const validationError = ref('')
 
     const { getAllDefaulters } = useApiRequests()
 
@@ -39,15 +39,25 @@
     })
 
     const handleSubmit = (event) => { 
-        const defaulterFound = defaultersNames.value.find(({name}) => name === nameFromInput.value);
+        const formElement = event.target
+        const { getInputValuesSanitized, hasFalsyInputValues, showRequiredInputsValidationError, showValidationError, cleanValidationError } = useCustomForm(formElement)
+        cleanValidationError()
 
-        if(!defaulterFound){
-            console.warn(`El moroso '${nameFromInput.value}' NO ESTA REGISTRADO, revise de nuevo el nombre ingresado.`);
-            validationError.value = `El moroso '${nameFromInput.value}' NO ESTA REGISTRADO, revise de nuevo el nombre ingresado.`
+        const sanitizedInputs = getInputValuesSanitized()
+        const { boolean: hasFalsyInputs, falsyInputs } = hasFalsyInputValues(sanitizedInputs)
+        if( hasFalsyInputs ){
+            showRequiredInputsValidationError(falsyInputs)
             return
         }
 
-        validationError.value = ``
+        const { Nombre_moroso } = sanitizedInputs
+        const defaulterFound = defaultersNames.value.find(({name}) => name === Nombre_moroso);
+
+        if( !defaulterFound ){
+            showValidationError(`El moroso '${Nombre_moroso}' NO ESTA REGISTRADO, revise de nuevo el nombre ingresado.`) 
+            return
+        }
+
         emits('handle-submit-search-defaulter', { defaulterId: defaulterFound.id })        
     }
 </script>
@@ -57,6 +67,7 @@
   /* max-width: 25%; */
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: .8rem;
 }
 
@@ -91,11 +102,12 @@
   right: .5rem;
 }
 
-.search-defaulter-form__validation-message{
-    text-align: justify;
+.validation-error-msg{
+    text-align: center;
     text-decoration: underline;
     font: normal normal 600 1.4rem var(--default-font);
     color: var(--debt_balance);
+    width: clamp(300px, 80%, 380px);
 }
 
 input::-webkit-calendar-picker-indicator {
@@ -121,7 +133,7 @@ input:-webkit-autofill:active{
     }
 
 
-    .search-defaulter-form__validation-message{
+    .validation-error-msg{
         font: normal normal 600 1.8rem var(--default-font);
     }
 }
@@ -133,7 +145,7 @@ input:-webkit-autofill:active{
     .search-defaulter-form__input::placeholder{
         font: normal normal normal 1.9rem var(--display-font);
     }
-    .search-defaulter-form__validation-message{
+    .validation-error-msg{
         font: normal normal 600 1.6rem var(--default-font);
     }
 }

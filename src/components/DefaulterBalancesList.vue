@@ -24,7 +24,8 @@
 
 <style scoped>
 .balances-list{
-    margin: 1rem auto 0 auto;
+    border-top: 3px dashed var(--chocolate-dark);
+    padding: .5rem;
     width: 95%;
     display: flex;
     flex-direction: column;

@@ -227,9 +227,8 @@
       </template>
       <span class="msg-error-after-load" v-else>{{ errorWhenLoadAllDefaulters.message }}</span>
 
-      <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal">
+      <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal" class="modal-w-form-and-list">
         <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/>
-        <div class="divider-modal"></div>
         <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt"/>
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
@@ -285,14 +284,6 @@ body:has(.modal-container){
   font: normal normal normal 1.5rem var(--display-font);
 }
 
-.divider-modal{
-  height: 2px;
-  width: 90%;
-  background-color: var(--color-titles);
-  border-radius: 10px;
-  margin: 2rem auto;
-}
-
 .discount_balance{
   color: var(--discount_balance);
 }
@@ -334,14 +325,6 @@ body:has(.modal-container){
 
   .add-defaulter-button__text{
     font: normal normal normal 2.2rem var(--display-font);
-  }
-
-  .divider-modal{
-    height: 2px;
-    width: 90%;
-    background-color: var(--color-titles);
-    border-radius: 10px;
-    margin: 2rem auto;
   }
 
   .msg-error-after-load{

@@ -37,13 +37,15 @@
     </div>
 
     <div class="field">
-      <label for="input-was-paid" class="field__label">¿Lo pagó?</label>
+      <label for="input-was-paid" class="field__label">¿Pagó?</label>
       <input type="checkbox" :checked="!!thingInfo?.pivot.was_paid || false" class="field__input_checkbox" id="input-was-paid"
         name="Fue_pagado">
     </div>
 
-    <button type="button" @click="resetThingsFields" class="button-reset-thing" title="Limpiar">Limpiar item</button>
-    <button type="submit" class="submit-new-defaulter-button" title="Guardar">Guardar</button>
+    <div class="defaulter-form__buttons">
+      <button type="button" @click="resetThingsFields" class="button-reset-thing" title="Limpiar">Limpiar item</button>
+      <button type="submit" class="submit-new-defaulter-button" title="Guardar">Guardar</button>
+    </div>
     <span class="validation-error-msg"></span>
   </form>
 </template>
@@ -241,13 +243,12 @@
 }
 
 .defaulter-form {
-  top: 2.5rem;
   width: 95%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.5rem 1.5rem;
-  padding: 3rem 0 0 0;
+  gap: 1.7rem 1.5rem;
+  padding: 0;
 }
 
 .name-defaulter-input {
@@ -256,10 +257,12 @@
 }
 
 .field {
+  /* width: clamp(120px, 45%, 260px); */
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: end;
-  width: clamp(120px, 45%, 260px);
+  gap: .2rem 0;
 }
 
 .field__label {
@@ -273,6 +276,12 @@
   box-shadow: inherit;
   width: 1.5rem;
   height: 1.5rem;
+}
+
+.defaulter-form__buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
 .submit-new-defaulter-button {
@@ -293,7 +302,7 @@
   font: normal normal normal 1.3rem var(--display-font);
   height: min-content;
   padding: .5rem .7rem;
-  width: 40%;
+  width: min-content;
 }
 
 .validation-error-msg {
@@ -303,11 +312,16 @@
   text-underline-offset: 5px;
 }
 
-.field:has([type="datetime-local"]), .field:has([for="input-was-paid"]) {
-  width: 100%;
+.field:has(#input-unit-price), .field:has(#input-quantity-product) {
+  width: clamp(120px, 45%, 260px);
 }
 
+/* .field:has([type="datetime-local"]), .field:has([for="input-was-paid"]) {
+  width: 100%;
+} */
+
 .field:has([for="input-was-paid"]) {
+  width: clamp(120px, 50%, 260px);
   flex-direction: column;
   align-items: center;
   gap: .5rem;
@@ -319,8 +333,8 @@
 
 @media (width >= 768px) {
   .defaulter-form {
-    margin: 0 auto;
-    justify-content: space-around;
+    /* margin: 0 auto; */
+    justify-content: space-between;
     gap: 2.5rem 1.5rem;
   }
 
@@ -373,34 +387,83 @@
 
 
 @media (width >= 1280px) {
+  .defaulter-form {
+    width: clamp(500px, 45%, 600px);
+  }
+
   .field:has([type="datetime-local"]) {
-    width: 35%;
+    width: 60%;
   }
 
   .field:has([for="input-was-paid"]) {
-    width: 15%;
+    width: 30%;
   }
-}
 
-@media (width >= 1300px) {
   .defaulter-form {
-    gap: 2rem 1.5rem;
-  }
-
-  .field{
-    width: clamp(260px, 30%, 300px);
+    /* margin: 0 auto; */
+    justify-content: space-between;
+    gap: 2.5rem 1.5rem;
   }
 
   .field__label {
-    font: normal normal normal 1.7rem var(--display-font);
-    /* font: normal normal normal 1.5rem var(--display-font); */
+    font: normal normal normal 2rem var(--display-font);
     line-height: 2.5rem;
   }
 
   .name-defaulter-input,
   .field__input {
     padding: .5rem 1rem;
+    font: normal normal normal 1.8rem var(--display-font);
+  }
+
+  .field__input_checkbox {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .submit-new-defaulter-button {
+    font: normal normal normal 2rem var(--display-font);
+  }
+
+  .button-reset-thing {
+    font: normal normal normal 1.8rem var(--display-font);
+  }
+
+  .validation-error-msg {
+    font: normal normal normal 2.2rem var(--display-font);
+  }
+
+  .field:has([type="datetime-local"]) {
+    width: 60%;
+  }
+
+  .field:has([for="input-was-paid"]) {
+    width: 25%;
+  }
+
+  .field:has([for="input-was-paid"]) {
+    place-self: end;
+  }
+
+  .field:has([for="input-was-paid"]) .field__label {
+    white-space: nowrap;
+  }
+}
+
+@media (width >= 1300px) {
+  .defaulter-form {
+    gap: 1.5rem;
+  }
+
+  .field__label {
     font: normal normal normal 1.5rem var(--display-font);
+    line-height: 2.5rem;
+  }
+
+  .name-defaulter-input,
+  .field__input {
+    padding: .5rem 1rem;
+    font: normal normal normal 1.4rem var(--display-font);
     /* font: normal normal normal 1.3rem var(--display-font); */
   }
 

@@ -43,7 +43,7 @@
 <style scoped>
 .debts-list{
   min-height: 20vh;
-  max-height: 40vh;
+  max-height: 80vh;
   background-color: var(--grey);
   border-radius: 25px;
   padding: 1.5rem 1rem;
@@ -82,7 +82,6 @@
 @media (width >= 768px) {
     .debts-list{
         width: 95%;
-        margin: 0 auto;
         flex-wrap: wrap;
         gap: 1rem;
         overflow-y: auto;
@@ -101,6 +100,10 @@
 }
 
 @media (width >= 1280px) {
+    .debts-list{
+        width: clamp(400px, 40%, 500px);
+    }
+
     .edit-tag,
     .delete-tag,
     .file-tag{

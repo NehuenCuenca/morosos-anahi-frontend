@@ -107,27 +107,26 @@
     }
 
     errorWhenLoadSingleDefaulter.value = { bool: false, message:`` };
-    const { debts, ...restInfo } = getDefaulterInfoResponse.data.defaulter 
+    const { debts_by_month_year, ...restInfo } = getDefaulterInfoResponse.data.defaulter 
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts 
+    defaulterDebts.value = debts_by_month_year 
   }
 
-  const handleEditDebt = (debt_id_selected) => { 
-    console.log('EDIT executed', debt_id_selected, ); 
-    defaulterDebtSelected.value = defaulterDebts.value.find( ({pivot}) => pivot.id === debt_id_selected )
+  const handleEditDebt = async(debt_selected) => { 
+    console.log('EDIT executed', debt_selected, ); 
+    defaulterDebtSelected.value = debt_selected
   }
 
-  const handleSoftDeleteDebt = async(debt_id_selected) => { 
-    console.log('SOFT DELETE executed', debt_id_selected); 
-    const thingSelected = defaulterDebts.value.find( ({pivot}) => pivot.id === debt_id_selected )
-    const { name } = thingSelected
-    const { quantity, unit_price, was_paid } = thingSelected.pivot
+  const handleSoftDeleteDebt = async(debt_selected) => { 
+    console.log('SOFT DELETE executed', debt_selected); 
+    const { name } = debt_selected
+    const { quantity, unit_price, was_paid } = debt_selected.pivot
     const crossOutOrDebtText = (was_paid) ? 'VOLVER A ANOTAR' : 'TACHAR'
     const confirmDeleteDebt = confirm(`¿Esta seguro de ${crossOutOrDebtText} '${name} $${unit_price * quantity}'?`)
 
     if(!confirmDeleteDebt) return
 
-    const softDeletedDebtResponse = await createOrUpdateDebt(debt_id_selected, {was_paid: !was_paid})
+    const softDeletedDebtResponse = await createOrUpdateDebt(debt_selected.pivot.id, {was_paid: !was_paid})
     const responseIsGood = softDeletedDebtResponse.statusText === 'OK'
     if(!responseIsGood){
       const errorMessage = `Error al tratar de ${crossOutOrDebtText} la deuda ${name}: ${softDeletedDebtResponse.message}. Intentalo de nuevo mas tarde.`
@@ -139,25 +138,24 @@
       return
     }
 
-    const { debts, ...restInfo } = softDeletedDebtResponse.data.defaulter
+    const { debts_by_month_year, ...restInfo } = softDeletedDebtResponse.data.defaulter
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts
+    defaulterDebts.value = debts_by_month_year
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
-  const handleFileDebt = async(debt_id_selected) => { 
-    console.log('FILE DEBT executed', debt_id_selected); 
-    const thingSelected = defaulterDebts.value.find( ({pivot}) => pivot.id === debt_id_selected )
-    const { name } = thingSelected
-    const { quantity, unit_price, filed_at } = thingSelected.pivot
+  const handleFileDebt = async(debt_selected) => { 
+    console.log('FILE DEBT executed', debt_selected); 
+    const { name } = debt_selected
+    const { quantity, unit_price, filed_at } = debt_selected.pivot
     
     const toFileOrNot = (!filed_at) ? 'ARCHIVAR' : 'DESARCHIVAR'
     const filedAtValue = (!filed_at) ? getTodayDateFormated() : null
     const confirmFileDebt = confirm(`¿Esta seguro de ${toFileOrNot} '${name} $${unit_price * quantity}'?`)
     if(!confirmFileDebt) return
 
-    const fileDebtResponse = await createOrUpdateDebt(debt_id_selected, {filed_at: filedAtValue})
+    const fileDebtResponse = await createOrUpdateDebt(debt_selected.pivot.id, {filed_at: filedAtValue})
     const responseIsGood = fileDebtResponse.statusText === 'OK'
     if(!responseIsGood){
       const errorMessage = `Error al tratar de ${toFileOrNot} la deuda ${name}: ${fileDebtResponse.message}. Intentalo de nuevo mas tarde.`
@@ -169,9 +167,9 @@
       return
     }
 
-    const { debts, ...restInfo } = fileDebtResponse.data.defaulter
+    const { debts_by_month_year, ...restInfo } = fileDebtResponse.data.defaulter
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts
+    defaulterDebts.value = debts_by_month_year
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
@@ -187,10 +185,10 @@
       closeModal() 
       userAction.value = 'RU'
     }
-    const { debts, ...restInfo } = defaulter 
+    const { debts_by_month_year, ...restInfo } = defaulter 
     
     defaulterInfo.value = restInfo
-    defaulterDebts.value = debts 
+    defaulterDebts.value = debts_by_month_year 
     cleanThingSelected()
 
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters

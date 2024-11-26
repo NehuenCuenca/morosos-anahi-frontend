@@ -15,15 +15,20 @@
         const [ year, monthNumber, monthName ] = props.monthYear.split('_')
         
         const linkToApi = new URL(`${VITE_LOCAL_URL}/api/defaulters/${props.defaulter_id}/excel-debts`);
-        linkToApi.searchParams.append("year", year);
-        linkToApi.searchParams.append("month", monthNumber);
+        linkToApi.searchParams.append("year", parseInt(year));
+        linkToApi.searchParams.append("month", parseInt(monthNumber));
 
         return linkToApi.href
     })
 
-    const formatedMonthYearSeparator = computed(() => { 
+    const formatedMonthYearSeparator = computed(() => {
+        const firstLeterToUpperCase = (word) => {
+            const letterUppercased = word.substring(0,1).toUpperCase()
+            return `${letterUppercased}${word.substring(1)}`
+        }
+
         const [ year, monthNumber, monthName ] = props.monthYear.split('_')   
-        return `${monthName} (${monthNumber}/${year})`
+        return `${firstLeterToUpperCase(monthName)} (${monthNumber}/${year})`
     })
 </script>
 

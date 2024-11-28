@@ -10,24 +10,9 @@
     </div>
 
     <div class="field">
-      <label for="input-unit-price" class="field__label">Precio unitario</label>
-      <input type="number" :value="copyAfterSubmit?.Precio_por_unidad || thingInfo?.pivot.unit_price" class="field__input"
-        id="input-unit-price" name="Precio_por_unidad" placeholder="Costo por unidad">
-    </div>
-
-    <div class="field">
-      <label for="input-quantity-product" class="field__label">Cantidad</label>
-      <input type="number" :value="copyAfterSubmit?.Cantidad || thingInfo?.pivot.quantity || 1" class="field__input"
-        id="input-quantity-product" name="Cantidad" min="0" placeholder="Cantidad de productos">
-    </div>
-
-    <div class="field">
-      <label for="input-detail" class="field__label">Detalle</label>
-      <input type="text" list="thing-names" :value="copyAfterSubmit?.Detalle || thingInfo?.name" class="field__input" id="input-detail"
-        name="Detalle" minlength="3" maxlength="40" placeholder="Nombre de producto">
-      <datalist id="thing-names" v-if="thingsNames.length > 0"> 
-        <option v-for="({name}) in thingsNames" :value="name"></option>
-      </datalist>
+      <label for="input-price-quantity-detail" class="field__label">Precio unitario | Cantidad | Detalle</label>
+      <input type="text" :value="copyAfterSubmit?.Precio_Cantidad_Detalle || thingInfo?.pivot.unit_price_quantity_detail" class="field__input"
+        id="input-price-quantity-detail" name="Precio_Cantidad_Detalle" placeholder="Ejemplo: 900|cig o 900|2|cig">
     </div>
 
     <div class="field">
@@ -78,7 +63,6 @@
   onMounted( async() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
     await loadDefaultersNames()
-    await loadThingsNames()
   })
 
   const resetAfterSubmit = () => {
@@ -95,7 +79,7 @@
     const formElement = event.target
     const currentCRUDOperation = formElement.getAttribute('data-CRUD')
     
-    const { getInputValuesSanitized, hasFalsyInputValues, showRequiredInputsValidationError, cleanValidationError } = useCustomForm(formElement)
+    const { getInputValuesSanitized, hasFalsyInputValues, showRequiredInputsValidationError, cleanValidationError, matchPriceQuantityDetailFormat, showValidationError } = useCustomForm(formElement)
     cleanValidationError()
 
     const sanitizedInputs = getInputValuesSanitized()
@@ -106,24 +90,45 @@
       return
     }
 
+    if( !matchPriceQuantityDetailFormat(sanitizedInputs.Precio_Cantidad_Detalle) ){
+      showValidationError(`El campo 'Precio unitario | Cantidad | Detalle' NO RESPETA el respectivo formato`)
+      return
+    }
+    
     if( currentCRUDOperation === 'C' ){
       await createDebt(sanitizedInputs)
     } else {
       await updateDebt(sanitizedInputs)
     }    
 
-    loadThingsNames()
+    setTodayOnDateInput()
+    const inputAfterDefaulterNameField = rootFormElement.value.querySelector('input#input-price-quantity-detail')
+    inputAfterDefaulterNameField.focus()
+  }
+
+  const patchPriceQuantityDetailString = (priceQuantityDetail) => { 
+    let [newPrice, newQuantity, newDetail] = priceQuantityDetail.split('|')
+    if(!newDetail) [newDetail, newQuantity] = [newQuantity, newDetail];
+    
+    const quantityIsEmptyOrIsNaN = ( !newQuantity || Number.isNaN(newQuantity) )
+    return { 
+      newPrice: parseInt(newPrice),
+      newQuantity: (quantityIsEmptyOrIsNaN) ? 1 : parseInt(newQuantity),
+      newDetail: newDetail.trim()
+    }
   }
 
   const createDebt = async(newDebt) => { 
     console.log('createDebt | GUARDAR MOROSO (C)', newDebt);
 
+    const { newPrice, newQuantity, newDetail } = patchPriceQuantityDetailString(newDebt.Precio_Cantidad_Detalle)
+  
     const suitableFieldsToSend = { 
       defaulter_name: newDebt.Nombre_moroso,
       things: [{
-        thing_name: newDebt.Detalle,
-        unit_price: newDebt.Precio_por_unidad,
-        quantity: newDebt.Cantidad,
+        unit_price: newPrice,
+        quantity: newQuantity,
+        thing_name: newDetail,
         retired_at: newDebt.Fecha_retiro,
         filed_at: null,
         was_paid: (newDebt?.Fue_pagado) ? true : false
@@ -144,7 +149,7 @@
     }
 
     toast.success(
-      `El moroso '${newDebtResponse.data.defaulter.name}' ha sido CREADO exitosamente.`, { 
+      newDebtResponse.data.message, { 
       position: "bottom-right", timeout: 5000, closeOnClick: true, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
     });
     emits('handle-submit-form', { responseIsGood, defaulter: newDebtResponse.data.defaulter })
@@ -161,18 +166,20 @@
       return
     }
 
+    const { newPrice, newQuantity, newDetail } = patchPriceQuantityDetailString(debtToUpdate.Precio_Cantidad_Detalle)
+
     const suitableFieldsToSend = { 
-      unit_price: debtToUpdate.Precio_por_unidad,
-      quantity: debtToUpdate.Cantidad,
+      unit_price: newPrice,
+      quantity: newQuantity,
       retired_at: debtToUpdate.Fecha_retiro,
       filed_at: props.thingInfo.pivot.filed_at,
       was_paid: (debtToUpdate?.Fue_pagado) ? true : false
     }
 
     const wantsToEditDefaulterName = debtToUpdate.Nombre_moroso !== props.defaulterInfo.name
-    const wantsToEditThingName = selectedAThingToEdit && (debtToUpdate.Detalle !== props.thingInfo.name)
+    const wantsToEditThingName = selectedAThingToEdit && (newDetail !== props.thingInfo.name)
     if( wantsToEditDefaulterName ) { suitableFieldsToSend.new_defaulter_name = debtToUpdate.Nombre_moroso }
-    if( wantsToEditThingName ) { suitableFieldsToSend.new_thing_name = debtToUpdate.Detalle }
+    if( wantsToEditThingName ) { suitableFieldsToSend.new_thing_name = newDetail }
 
     const updatedDebtResponse = await createOrUpdateDebt(props.thingInfo.pivot.id, suitableFieldsToSend)
     console.log(updatedDebtResponse);
@@ -206,12 +213,13 @@
     validationError.value = ``
     copyAfterSubmit.value = (copyAfterSubmit.value) ? { Nombre_moroso: copyAfterSubmit?.value.Nombre_moroso } : null
     const defaulterNameInput = rootFormElement.value.querySelector('.name-defaulter-input')
-    const quantityInput = rootFormElement.value.querySelector('#input-quantity-product')
+    const inputAfterDefaulterNameField = rootFormElement.value.querySelector('input#input-price-quantity-detail')
+
     const nameBeforeReset = defaulterNameInput.value
     rootFormElement.value.reset()
 
     defaulterNameInput.value = nameBeforeReset || ''
-    quantityInput.value = 1
+    inputAfterDefaulterNameField.value = ''
 
     nextTick(() => { setTodayOnDateInput() })
   }
@@ -220,12 +228,6 @@
     const defaultersPromise = await getAllDefaulters({ orderByAlphabet: true })
     const { data } = defaultersPromise.data.defaulters
     defaultersNames.value = data.map(({id, name}) => ({ id, name: name.toLowerCase() }))
-  }
-
-  const loadThingsNames = async() => { 
-    const thingsPromise = await getAllThings({ orderByAlphabet: true })
-    const { data } = thingsPromise.data.things
-    thingsNames.value = data.map(({id, name}) => ({ id, name: name.toLowerCase() }))
   }
 </script>
 
@@ -236,7 +238,7 @@
   border-radius: 25px;
   padding: .5rem 1rem;
   color: var(--color-bg);
-  font: normal normal normal 1.3rem var(--display-font);
+  font: normal normal normal 1.3rem var(--default-font);
   box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.5);
   border: none;
   outline: none;
@@ -252,7 +254,7 @@
 }
 
 .name-defaulter-input {
-  font: normal normal normal 1.2rem var(--display-font);
+  /* font: normal normal normal 1.2rem var(--display-font); */
   grid-area: input-name;
 }
 
@@ -310,6 +312,7 @@
   color: var(--debt_balance);
   text-decoration: underline;
   text-underline-offset: 5px;
+  animation: FadeInCenter 1s ease 0s 1 normal forwards;
 }
 
 .field:has(#input-unit-price), .field:has(#input-quantity-product) {
@@ -331,6 +334,16 @@
   white-space: nowrap;
 }
 
+@keyframes FadeInCenter {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
 @media (width >= 768px) {
   .defaulter-form {
     /* margin: 0 auto; */
@@ -346,7 +359,7 @@
   .name-defaulter-input,
   .field__input {
     padding: .5rem 1rem;
-    font: normal normal normal 2rem var(--display-font);
+    font: normal normal normal 2rem var(--default-font);
   }
 
   .field__input_checkbox {
@@ -389,18 +402,6 @@
 @media (width >= 1280px) {
   .defaulter-form {
     width: clamp(500px, 45%, 600px);
-  }
-
-  .field:has([type="datetime-local"]) {
-    width: 60%;
-  }
-
-  .field:has([for="input-was-paid"]) {
-    width: 30%;
-  }
-
-  .defaulter-form {
-    /* margin: 0 auto; */
     justify-content: space-between;
     gap: 2.5rem 1.5rem;
   }
@@ -413,7 +414,7 @@
   .name-defaulter-input,
   .field__input {
     padding: .5rem 1rem;
-    font: normal normal normal 1.8rem var(--display-font);
+    font: normal normal normal 1.8rem var(--default-font);
   }
 
   .field__input_checkbox {
@@ -434,14 +435,11 @@
   }
 
   .field:has([type="datetime-local"]) {
-    width: 60%;
+    width: 70%;
   }
 
   .field:has([for="input-was-paid"]) {
     width: 25%;
-  }
-
-  .field:has([for="input-was-paid"]) {
     place-self: end;
   }
 
@@ -463,7 +461,7 @@
   .name-defaulter-input,
   .field__input {
     padding: .5rem 1rem;
-    font: normal normal normal 1.4rem var(--display-font);
+    font: normal normal normal 1.4rem var(--default-font);
     /* font: normal normal normal 1.3rem var(--display-font); */
   }
 

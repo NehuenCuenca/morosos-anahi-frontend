@@ -41,6 +41,11 @@ const useCustomForm = ( formElement ) => {
     }
   }
 
+  const matchPriceQuantityDetailFormat = (inputString) => { 
+    const regex = /^-?[1-9]\d*\|(?:[1-9]\d*)?\|?[a-zA-Z\s]+$/;
+    return regex.test(inputString);
+  }
+
   const showRequiredInputsValidationError = (nameOfFalsyInputs) => { 
     const concatenatedFields = nameOfFalsyInputs.map(name => name.toUpperCase().replaceAll('_', ' ')).join(', ')
     console.error(`No se envió el formulario ya que hay campos obligatorios que estan vacios: ${concatenatedFields}.`)
@@ -56,7 +61,7 @@ const useCustomForm = ( formElement ) => {
     validationErrorElement.value.textContent = ''  
   }
 
-  return { getInputValuesSanitized, hasFalsyInputValues, showRequiredInputsValidationError, showValidationError, cleanValidationError }
+  return { getInputValuesSanitized, hasFalsyInputValues, showRequiredInputsValidationError, showValidationError, cleanValidationError, matchPriceQuantityDetailFormat }
 }
 
 export default useCustomForm;

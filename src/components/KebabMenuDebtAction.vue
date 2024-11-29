@@ -5,13 +5,16 @@
 
         <ul class="kebab__dropdown">
             <li class="kebab__dropdown-item kebab__dropdown-item_hover">
-                <slot name="editButton"></slot>
-            </li>
-            <li class="kebab__dropdown-item kebab__dropdown-item_hover">
                 <slot name="payOrCrossButton"></slot>
             </li>
             <li class="kebab__dropdown-item kebab__dropdown-item_hover">
                 <slot name="fileButton"></slot>
+            </li>
+            <li class="kebab__dropdown-item kebab__dropdown-item_hover">
+                <slot name="editButton"></slot>
+            </li>
+            <li class="kebab__dropdown-item kebab__dropdown-item_hover">
+                <slot name="deleteButton"></slot>
             </li>
         </ul>
     </button>

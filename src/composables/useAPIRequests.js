@@ -119,6 +119,16 @@ const useApiRequests = () => {
         }
       }
     };
+
+    const deleteModel = async(modelRoute, modelId) => { 
+      try {
+        const response = await instance.delete(`/${modelRoute}/${modelId}`);
+        return response
+      } catch (error) {
+        console.error(`Error al intentar eliminar un modelo(${modelRoute}): `, error);
+        return error
+      }
+    }
     
     return {
       getAllDefaulters,
@@ -127,7 +137,8 @@ const useApiRequests = () => {
       getThingsOfDefaulterById,
       createOrUpdateDefaulter,
       createOrUpdateThing,
-      createOrUpdateDebt
+      createOrUpdateDebt,
+      deleteModel
     };
   };
   

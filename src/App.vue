@@ -58,7 +58,8 @@
   const { 
     getAllDefaulters, 
     getDefaulterInfoById,
-    createOrUpdateDebt
+    createOrUpdateDebt,
+    deleteModel
   } = useApiRequests()
 
   const toast = useToast();
@@ -174,6 +175,32 @@
     await setNewDefaulters(paramsUsedToGetDefaulters.value) // refresh defaulters
   }
 
+  const handleHardDeleteDebt = async(debt_selected) => { 
+    console.log('HARD DELETE executed', debt_selected); 
+    const { id, unit_price_quantity_detail } = debt_selected.pivot
+    
+    const hardDeleteDebtResponse = await deleteModel('debts', id)
+    const responseIsGood = hardDeleteDebtResponse.statusText === 'OK'
+    if(!responseIsGood){
+      const errorMessage = `Error al tratar de borrar la deuda '${unit_price_quantity_detail}'': ${hardDeleteDebtResponse.message}. Intentalo de nuevo mas tarde.`
+      console.error(errorMessage);
+      toast.error(
+        errorMessage, { 
+        position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+      });
+      return
+    }
+
+    toast.success(
+      hardDeleteDebtResponse.data.message, { 
+      position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+    });
+
+    const { debts_by_month_year, ...restInfo } = hardDeleteDebtResponse.data.defaulter 
+    defaulterInfo.value = restInfo
+    defaulterDebts.value = debts_by_month_year
+  }
+
   const cleanPreviousDefaulterInfo = () => { 
     defaulterInfo.value = null
     defaulterDebts.value = []
@@ -227,7 +254,7 @@
 
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal" class="modal-w-form-and-list">
         <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/>
-        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt"/>
+        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-soft-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt" @handle-hard-delete-debt="handleHardDeleteDebt"/>
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
     </main>

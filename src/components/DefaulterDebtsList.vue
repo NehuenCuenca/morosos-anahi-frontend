@@ -18,7 +18,7 @@
                             </button>
                         </template>
                         <template v-slot:payOrCrossButton>
-                            <button type="button" class="delete-tag" @click="$emit('handleDeleteDebt', debt)">
+                            <button type="button" class="delete-tag" @click="$emit('handleSoftDeleteDebt', debt)">
                                 <span>{{ (!debt.pivot.was_paid) ? 'Tachar' : 'Anotar'}}</span>
                                 <i class='bx bx-sm' :class="(!debt.pivot.was_paid) ? 'bx-dollar' : 'bx-undo'"></i>
                             </button>
@@ -28,6 +28,12 @@
                                 <span>{{ (!debt.pivot.filed_at) ? 'Archivar' : 'Desarchivar'}}</span>
                                 <i v-if="!debt.pivot.filed_at" class='bx bx-folder-plus bx-sm'></i>
                                 <i v-else class='bx bx-folder-minus bx-sm'></i>
+                            </button>
+                        </template>
+                        <template v-slot:deleteButton>
+                            <button type="button" class="delete-tag" @click="$emit('handleHardDeleteDebt', debt)">
+                                <span>Eliminar</span>
+                                <i class='bx bx-trash'></i>
                             </button>
                         </template>
                     </KebabMenuDebtAction>
@@ -50,7 +56,7 @@
 <style scoped>
 .debts-list{
   min-height: 20vh;
-  max-height: 80vh;
+  max-height: 60vh;
   background-color: var(--grey);
   border-radius: 25px;
   padding: 1.5rem 1rem;

@@ -63,6 +63,13 @@
   onMounted( async() => {
     if(!props.thingInfo) { setTodayOnDateInput() }
     await loadDefaultersNames()
+
+    const currentCRUDOperation = rootFormElement.value.getAttribute('data-CRUD')
+    if( currentCRUDOperation === 'C' ){
+      rootFormElement.value.querySelector('input#input-defaulter-name').focus()
+    } else {
+      rootFormElement.value.querySelector('input#input-price-quantity-detail').focus()
+    } 
   })
 
   const resetAfterSubmit = () => {
@@ -102,8 +109,7 @@
     }    
 
     setTodayOnDateInput()
-    const inputAfterDefaulterNameField = rootFormElement.value.querySelector('input#input-price-quantity-detail')
-    inputAfterDefaulterNameField.focus()
+    rootFormElement.value.querySelector('input#input-price-quantity-detail').focus()
   }
 
   const patchPriceQuantityDetailString = (priceQuantityDetail) => { 
@@ -185,7 +191,7 @@
     console.log(updatedDebtResponse);
     const responseIsGood = updatedDebtResponse.statusText === 'OK'
     if (!responseIsGood) {
-      const errorMessage = `Error al tratar de guardar una nueva deuda: ${updatedDebtResponse?.response?.data.message} (${updatedDebtResponse.message}).`
+      const errorMessage = `Error al tratar de editar una nueva deuda: ${updatedDebtResponse?.response?.data.message} (${updatedDebtResponse.message}).`
       console.error(errorMessage)
       toast.error(
         errorMessage, { 
@@ -213,13 +219,11 @@
     validationError.value = ``
     copyAfterSubmit.value = (copyAfterSubmit.value) ? { Nombre_moroso: copyAfterSubmit?.value.Nombre_moroso } : null
     const defaulterNameInput = rootFormElement.value.querySelector('.name-defaulter-input')
-    const inputAfterDefaulterNameField = rootFormElement.value.querySelector('input#input-price-quantity-detail')
 
     const nameBeforeReset = defaulterNameInput.value
     rootFormElement.value.reset()
 
     defaulterNameInput.value = nameBeforeReset || ''
-    inputAfterDefaulterNameField.value = ''
 
     nextTick(() => { setTodayOnDateInput() })
   }

@@ -17,7 +17,7 @@
 
     <div class="field">
       <label for="input-datetime" class="field__label">Fecha</label>
-      <input type="datetime-local" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at || todayFormatedDate" class="field__input"
+      <input type="datetime-local" step="1" :value="copyAfterSubmit?.Fecha_retiro || thingInfo?.pivot.retired_at || todayFormatedDate" class="field__input"
         id="input-datetime" name="Fecha_retiro">
     </div>
 
@@ -53,7 +53,6 @@
   const validationError = ref('')
   const copyAfterSubmit = ref(null)
   const defaultersNames = ref([])
-  const thingsNames = ref([])
   const todayFormatedDate = ref('')
 
   const { createOrUpdateDebt, getAllDefaulters, getAllThings } = useApiRequests()

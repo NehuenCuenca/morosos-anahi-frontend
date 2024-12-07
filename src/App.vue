@@ -59,7 +59,9 @@
     getAllDefaulters, 
     getDefaulterInfoById,
     createOrUpdateDebt,
-    deleteModel
+    deleteModel,
+    updateDebtCollection,
+    deleteDebtCollection
   } = useApiRequests()
 
   const toast = useToast();
@@ -178,6 +180,9 @@
   const handleHardDeleteDebt = async(debt_selected) => { 
     console.log('HARD DELETE executed', debt_selected); 
     const { id, unit_price_quantity_detail } = debt_selected.pivot
+
+    const confirmHardDeleteDebt = confirm(`¿Esta seguro de ELIMINAR '${unit_price_quantity_detail}'?`)
+    if(!confirmHardDeleteDebt) return
     
     const hardDeleteDebtResponse = await deleteModel('debts', id)
     const responseIsGood = hardDeleteDebtResponse.statusText === 'OK'
@@ -224,6 +229,42 @@
   const cleanThingSelected = () => { 
     defaulterDebtSelected.value = null
   }
+
+  const handleDebtsCollectionUpdate = async({ defaulter_id, payload }) => { 
+    const updateCollectionResponse = await updateDebtCollection(defaulter_id, payload)
+
+    const responseIsGood = updateCollectionResponse.statusText === 'OK'
+    if(!responseIsGood){
+        const errorMessage = `Error al tratar de editar la coleccion de deudas.`
+        console.error(errorMessage);
+        toast.error(
+            errorMessage, { 
+            position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+        });
+        return
+    }
+
+    const { defaulter } = updateCollectionResponse.data
+    updateLocalDefaulter({responseIsGood, defaulter})
+  }
+
+  const handleDebtsCollectionHardDelete = async({ defaulter_id, payload }) => { 
+    const deleteCollectionResponse = await deleteDebtCollection(defaulter_id, payload)
+
+    const responseIsGood = deleteCollectionResponse.statusText === 'OK'
+    if(!responseIsGood){
+        const errorMessage = `Error al tratar de eliminar la coleccion de deudas.`
+        console.error(errorMessage);
+        toast.error(
+            errorMessage, { 
+            position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
+        });
+        return
+    }
+
+    const { defaulter } = deleteCollectionResponse.data
+    updateLocalDefaulter({responseIsGood, defaulter})
+  }
 </script>
 
 <template>
@@ -254,7 +295,7 @@
 
       <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal" class="modal-w-form-and-list">
         <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/>
-        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-soft-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt" @handle-hard-delete-debt="handleHardDeleteDebt"/>
+        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-soft-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt" @handle-hard-delete-debt="handleHardDeleteDebt" @handle-debts-collection-update="handleDebtsCollectionUpdate" @handle-debts-collection-delete="handleDebtsCollectionHardDelete"/>
         <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
       </Modal>
     </main>

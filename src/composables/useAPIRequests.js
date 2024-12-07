@@ -6,7 +6,10 @@ const useApiRequests = () => {
     const instance = axios.create({
       baseURL: `${LOCAL_URL}/api/`,
       timeout: 2500,
-      headers: {'X-Custom-Header': 'foobar'}
+      headers: {
+        'X-Custom-Header': 'foobar',
+        'Accept': 'application/json'
+      }
     });
 
     const getAllDefaulters = async(callParams) => {
@@ -129,6 +132,26 @@ const useApiRequests = () => {
         return error
       }
     }
+
+    const updateDebtCollection = async(defaulter_id, payload) => { 
+      try {
+        const response = await instance.put(`/debts/${defaulter_id}/multiple`, payload);
+        return response
+      } catch (error) {
+        console.error(`Error al intentar editar la coleccion de deudas: `, error);
+        return error
+      }
+    }
+
+    const deleteDebtCollection = async(defaulter_id, payload) => { 
+      try {
+        const response = await instance.delete(`/debts/${defaulter_id}/multiple`, { data: payload });
+        return response
+      } catch (error) {
+        console.error(`Error al intentar eliminar la coleccion de deudas: `, error);
+        return error
+      }
+    }
     
     return {
       getAllDefaulters,
@@ -138,7 +161,9 @@ const useApiRequests = () => {
       createOrUpdateDefaulter,
       createOrUpdateThing,
       createOrUpdateDebt,
-      deleteModel
+      deleteModel,
+      updateDebtCollection,
+      deleteDebtCollection
     };
   };
   

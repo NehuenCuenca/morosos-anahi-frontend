@@ -35,9 +35,16 @@
 <style scoped>
     .month-year-separator{
         color: var(--color-titles);
-        font: normal normal normal 1.3rem var(--display-font);
+        font: normal normal normal 1.7rem var(--display-font);
+        text-align: center;
         text-decoration: underline;
         text-underline-offset: .3rem;
         padding: .3rem .5rem;
     }
+
+@media (width >= 768px) {
+    .month-year-separator{
+        font: normal normal normal 2.4rem var(--display-font);
+    }
+}
 </style>

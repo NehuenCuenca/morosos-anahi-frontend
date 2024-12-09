@@ -28,8 +28,8 @@
     place-items: center;
 }
 .modal-window{
-    width: 90%;
-    /* width: clamp(400px, 50%, 700px); */
+    /* width: 90%; */
+    width: clamp(90vw, 100%, 95vw);
     min-height: 400px;
     max-height: 95%;
     padding: 1rem;
@@ -42,7 +42,8 @@
     gap: .5rem 0;
     grid-template-areas: 
         "close-btn"
-        "content-slot"
+        "content-slot";
+    justify-items: center;
 }
 
 .close-modal-button{
@@ -56,7 +57,8 @@
 
 .modal-content{
     grid-area: content-slot;
-    width: 100%;
+    /* width: 100%; */
+    width: 95%;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;

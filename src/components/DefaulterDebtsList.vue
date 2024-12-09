@@ -4,25 +4,25 @@
             <span class="debt-actions-nav__selecteds-quantity">{{ checkedDebts.length }} {{messageSelectedDebtsQuantity}}</span>
             <ul class="debt-actions-list" v-if="checkedDebts.length === 1">
                 <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button"  @click="$emit('handle-soft-delete-debt', checkedDebts[0])">
+                    <button type="button" class="debt-action-button"  @click="handleSingleDebtAction('handle-soft-delete-debt')">
                         <i class='bx bx-sm' :class="(!selectedWasPaid) ? 'bx-dollar' : 'bx-undo'"></i>
                         <span>{{ (!selectedWasPaid) ? 'Tachar' : 'Anotar'}}</span>
                     </button>
                 </li>
                 <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="$emit('handle-file-debt', checkedDebts[0])">
+                    <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-file-debt')">
                         <i class='bx bx-sm' :class="(!selectedFiledAt) ? 'bx-folder-plus' : 'bx-folder-minus'"></i>
                         <span>{{ (!selectedFiledAt) ? 'Archivar' : 'Desarchivar'}}</span>
                     </button>
                 </li>
                 <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="$emit('handle-edit-debt', checkedDebts[0])">
+                    <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-edit-debt')">
                         <i class='bx bx-edit bx-sm'></i>
                         <span>Editar</span>
                     </button>
                 </li>
                 <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="$emit('handle-hard-delete-debt', checkedDebts[0])">
+                    <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-hard-delete-debt')">
                         <i class='bx bx-trash bx-sm'></i>
                         <span>Eliminar</span>
                     </button>
@@ -120,6 +120,11 @@
     const availableUnarchiveDebts = computed(() => checkedDebts.value.every( ({pivot}) => pivot.filed_at ))
     const gotSameUnitPrice = computed(() => checkedDebts.value.every( ({pivot}) => checkedDebts.value[0].pivot.unit_price === pivot.unit_price ))
 
+    const handleSingleDebtAction = (emitDebtAction) => { 
+        emits(emitDebtAction, checkedDebts.value[0])   
+        checkedDebts.value = []
+    }
+
     const handleDebtsCollectionActionLocal = (changes) => { 
         const defaulter_id = checkedDebts.value[0].pivot.defaulter_id
         const debts_id = checkedDebts.value.map( ({pivot}) => pivot.id)
@@ -158,19 +163,21 @@
 <style scoped>
 .debts-form{
     position: relative;
+    display: flex;
+    justify-content: center;
 }
 
 .debt-actions-nav{
     position: absolute;
     background-color: rgba(107, 79, 79, 0.9);
     min-height: 10vh;
-    max-height: 30vh;
-    width: 95%;
+    max-height: 35vh;
+    width: 100%;
     border-radius: 15px;
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: .5rem;
+    gap: 1rem;
     justify-content: flex-start;
     align-items: center;
     color: var(--marshmallow);
@@ -179,12 +186,13 @@
 }
 
 .debt-actions-nav__selecteds-quantity{
-    font: normal normal normal 1.4rem var(--display-font);
+    font: normal normal normal 1.5rem var(--display-font);
     color: var(--beige);
+    text-align: center;
 }
 
 .debt-actions-nav__close-button{
-    font: normal normal normal 1.2rem var(--display-font);
+    font: normal normal normal 1.4rem var(--display-font);
     color: var(--marshmallow);
     width: 100%;
     display: flex;
@@ -196,6 +204,7 @@
 .debt-actions-list{
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 1rem 2rem;
 }
 
@@ -203,14 +212,14 @@
 
 .debt-action-button{
     color: var(--beige);
-    font: normal normal normal 1.1rem var(--display-font);
+    font: normal normal normal 1.3rem var(--display-font);
     display: flex;
     align-items: center;
     gap: .2rem;
 }
 
 .debts-list{
-  min-height: 20vh;
+  min-height: 40vh;
   max-height: 60vh;
   background-color: var(--grey);
   border-radius: 25px;
@@ -222,22 +231,9 @@
   gap: .5rem;
   overflow-y: auto;
 }
-/* .debts-list{
-  min-height: 20vh;
-  max-height: 60vh;
-  background-color: var(--grey);
-  border-radius: 25px;
-  padding: 1.5rem 1rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: .5rem;
-  overflow-y: auto;
-} */
 
 .debts-list-item{
-  font: normal normal normal 1.3rem var(--default-font);
+  font: normal normal normal 1.5rem var(--default-font);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -298,8 +294,8 @@
         gap: .5rem;
     }
 
-    .month-year-separator{
-        font: normal normal normal 1.8rem var(--display-font);
+    .price-detail-tag{
+        font: normal normal normal 2.2rem var(--default-font);
     }
 
     .edit-tag,
@@ -307,6 +303,22 @@
     .file-tag{
         font: normal normal normal 1.7rem var(--default-font);
     }
+
+    .debt-checkbox-select{
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .debt-actions-nav__selecteds-quantity{
+        font-size: 2.4rem;
+    }
+    .debt-actions-nav__close-button{
+        font-size: 2.3rem;
+    }
+    .debt-action-button{
+        font-size: 2.1rem;
+    }
+
 }
 
 @media (width >= 1280px) {
@@ -318,7 +330,26 @@
     } */
 
     .month-year-separator{
-        font: normal normal normal 1.6rem var(--display-font);
+        font: normal normal normal 2rem var(--display-font);
+    }
+
+    .price-detail-tag{
+        font: normal normal normal 1.8rem var(--default-font);
+    }
+
+    .debt-checkbox-select{
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .debt-actions-nav__selecteds-quantity{
+        font-size: 2rem;
+    }
+    .debt-actions-nav__close-button{
+        font-size: 2rem;
+    }
+    .debt-action-button{
+        font-size: 1.8rem;
     }
 
     .edit-tag,
@@ -332,6 +363,16 @@
     .debts-list-item{
         font: normal normal normal 1.7rem var(--default-font);
         gap: .5rem;
+    }
+
+    .debt-actions-nav__selecteds-quantity{
+        font-size: 1.6rem;
+    }
+    .debt-actions-nav__close-button{
+        font-size: 1.5rem;
+    }
+    .debt-action-button{
+        font-size: 1.4rem;
     }
 }
 </style>

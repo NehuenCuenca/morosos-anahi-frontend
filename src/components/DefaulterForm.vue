@@ -262,7 +262,6 @@
 }
 
 .field {
-  /* width: clamp(120px, 45%, 260px); */
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -322,9 +321,7 @@
   width: clamp(120px, 45%, 260px);
 }
 
-/* .field:has([type="datetime-local"]), .field:has([for="input-was-paid"]) {
-  width: 100%;
-} */
+/* .field:has([type="datetime-local"]) {} */
 
 .field:has([for="input-was-paid"]) {
   width: clamp(120px, 50%, 260px);
@@ -385,7 +382,7 @@
   }
 
   .field:has([type="datetime-local"]) {
-    width: 60%;
+    width: 65%;
   }
 
   .field:has([for="input-was-paid"]) {

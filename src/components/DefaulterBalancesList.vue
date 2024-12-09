@@ -45,6 +45,7 @@
     .balances-list{
         flex-direction: row;
         justify-content: space-between;
+        gap: .5rem;
     }
     .balance-item{
         font: normal normal normal 2rem var(--display-font);

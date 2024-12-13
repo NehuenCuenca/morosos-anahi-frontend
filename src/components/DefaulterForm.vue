@@ -130,14 +130,14 @@
   
     const suitableFieldsToSend = { 
       defaulter_name: newDebt.Nombre_moroso,
-      things: [{
+      thing: {
         unit_price: newPrice,
         quantity: newQuantity,
         thing_name: newDetail,
         retired_at: newDebt.Fecha_retiro,
         filed_at: null,
         was_paid: (newDebt?.Fue_pagado) ? true : false
-      }]
+      }
     }
 
     const newDebtResponse = await createOrUpdateDebt(-1, suitableFieldsToSend)

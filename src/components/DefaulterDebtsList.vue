@@ -1,78 +1,87 @@
 <template>
     <form class="debts-form" @submit.prevent="handleSubmit">
-        <nav class="debt-actions-nav" v-if="checkedDebts.length >= 1">
-            <span class="debt-actions-nav__selecteds-quantity">{{ checkedDebts.length }} {{messageSelectedDebtsQuantity}}</span>
-            <ul class="debt-actions-list" v-if="checkedDebts.length === 1">
-                <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button"  @click="handleSingleDebtAction('handle-soft-delete-debt')">
-                        <i class='bx bx-sm' :class="(!selectedWasPaid) ? 'bx-dollar' : 'bx-undo'"></i>
-                        <span>{{ (!selectedWasPaid) ? 'Tachar' : 'Anotar'}}</span>
-                    </button>
-                </li>
-                <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-file-debt')">
-                        <i class='bx bx-sm' :class="(!selectedFiledAt) ? 'bx-folder-plus' : 'bx-folder-minus'"></i>
-                        <span>{{ (!selectedFiledAt) ? 'Archivar' : 'Desarchivar'}}</span>
-                    </button>
-                </li>
-                <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-edit-debt')">
-                        <i class='bx bx-edit bx-sm'></i>
-                        <span>Editar</span>
-                    </button>
-                </li>
-                <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-hard-delete-debt')">
-                        <i class='bx bx-trash bx-sm'></i>
-                        <span>Eliminar</span>
-                    </button>
-                </li>
-            </ul>
+        <nav class="debt-actions-nav " v-if="checkedDebts.length >= 1">
+            <div class="debt-actions-nav-upper-section">
+                <span class="debt-actions-nav-upper-section__selecteds-quantity">{{ checkedDebts.length }} {{messageSelectedDebtsQuantity}}</span>
+                <button type="button" class="debt-actions-nav-upper-section__toggle-actions-list" @click="actionsListIsDesplegated = !actionsListIsDesplegated">
+                    <i v-if="!actionsListIsDesplegated" class='bx bx-sm bxs-up-arrow'></i>
+                    <i v-else class='bx bx-sm bxs-down-arrow'></i>
+                </button>
+            </div>
+            <ul class="debt-actions-list" :class="actionsListIsDesplegated ? 'debt-actions-list_desplegated' : 'debt-actions-list_fold'" >
+                <template v-if="checkedDebts.length === 1">
+                    <li class="debt-actions-list-item">
+                        <button type="button" class="debt-action-button"  @click="handleSingleDebtAction('handle-soft-delete-debt')">
+                            <i class='bx bx-sm' :class="(!selectedWasPaid) ? 'bx-dollar' : 'bx-undo'"></i>
+                            <span>{{ (!selectedWasPaid) ? 'Tachar' : 'Anotar'}}</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item">
+                        <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-file-debt')">
+                            <i class='bx bx-sm' :class="(!selectedFiledAt) ? 'bx-folder-plus' : 'bx-folder-minus'"></i>
+                            <span>{{ (!selectedFiledAt) ? 'Archivar' : 'Desarchivar'}}</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item">
+                        <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-edit-debt')">
+                            <i class='bx bx-edit bx-sm'></i>
+                            <span>Editar</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item">
+                        <button type="button" class="debt-action-button" @click="handleSingleDebtAction('handle-hard-delete-debt')">
+                            <i class='bx bx-trash bx-sm'></i>
+                            <span>Eliminar</span>
+                        </button>
+                    </li>
+                </template>
 
-            <ul class="debt-actions-list" v-else>
-                <li class="debt-actions-list-item" v-if="availableCrossOutDebts">
-                    <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({was_paid: true})">
-                        <i class='bx bx-sm bx-dollar'></i>
-                        <span>Tachar</span>
-                    </button>
-                </li>
+                <template v-else>
+                    <li class="debt-actions-list-item" v-if="availableCrossOutDebts">
+                        <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({was_paid: true})">
+                            <i class='bx bx-sm bx-dollar'></i>
+                            <span>Tachar</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item" v-if="availableAnnotateDebts">
+                        <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({was_paid: false})">
+                            <i class='bx bx-sm bx-undo'></i>
+                            <span>Anotar</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item" v-if="availableArchiveDebts">
+                        <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({filed_at: getTodayDateFormated()})">
+                            <i class='bx bx-sm bx-folder-plus'></i>
+                            <span>Archivar</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item" v-if="availableUnarchiveDebts">
+                        <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({filed_at: null})">
+                            <i class='bx bx-sm bx-folder-minus'></i>
+                            <span>Desarchivar</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item" v-if="gotSameUnitPrice">
+                        <button type="button" class="debt-action-button" @click="handleCaptureUnitPrice">
+                            <i class='bx bx-sm bx-trending-up'></i>
+                            <span>Subir</span>
+                        </button>
+                    </li>
+                    <li class="debt-actions-list-item">
+                        <button type="button" class="debt-action-button" @click="handleHardDeleteDebtsCollection">
+                            <i class='bx bx-sm bx-trash'></i>
+                            <span>Eliminar</span>
+                        </button>
+                    </li>
+                </template>
                 
-                <li class="debt-actions-list-item" v-if="availableAnnotateDebts">
-                    <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({was_paid: false})">
-                        <i class='bx bx-sm bx-undo'></i>
-                        <span>Anotar</span>
-                    </button>
-                </li>
-                <li class="debt-actions-list-item" v-if="availableArchiveDebts">
-                    <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({filed_at: getTodayDateFormated()})">
-                        <i class='bx bx-sm bx-folder-plus'></i>
-                        <span>Archivar</span>
-                    </button>
-                </li>
-                <li class="debt-actions-list-item" v-if="availableUnarchiveDebts">
-                    <button type="button" class="debt-action-button" @click="handleDebtsCollectionActionLocal({filed_at: null})">
-                        <i class='bx bx-sm bx-folder-minus'></i>
-                        <span>Desarchivar</span>
-                    </button>
-                </li>
-                <li class="debt-actions-list-item" v-if="gotSameUnitPrice">
-                    <button type="button" class="debt-action-button" @click="handleCaptureUnitPrice">
-                        <i class='bx bx-sm bx-trending-up'></i>
-                        <span>Subir</span>
-                    </button>
-                </li>
                 <li class="debt-actions-list-item">
-                    <button type="button" class="debt-action-button" @click="handleHardDeleteDebtsCollection">
-                        <i class='bx bx-sm bx-trash'></i>
-                        <span>Eliminar</span>
+                    <button type="button" class="debt-action-button debt-action-button_close-menu" @click="checkedDebts = []">
+                        <i class='bx bx-sm bx-x'></i>
+                        <span>Cerrar menú</span>
                     </button>
                 </li>
             </ul>
-
-            <button type="button" class="debt-actions-nav__close-button" @click="checkedDebts = []">
-                <i class='bx bx-x bx-md'></i>
-                <span>Cerrar</span>
-            </button>
         </nav>
         <ul class="debts-list">
             <li v-for="(month_year, rdmindex) in Object.keys(debts)" :key="rdmindex" class="debts-list-item" >
@@ -106,6 +115,7 @@
     const emits = defineEmits(['handle-soft-delete-debt', 'handle-file-debt', 'handle-edit-debt', 'handle-hard-delete-debt', 'handle-debts-collection-update', 'handle-debts-collection-delete'])
 
     const checkedDebts = ref([])
+    const actionsListIsDesplegated = ref(true)
 
     const handleSubmit = (event) => { 
         console.log(checkedDebts.value);
@@ -163,6 +173,7 @@
 <style scoped>
 .debts-form{
     position: relative;
+    width: 100%;
     display: flex;
     justify-content: center;
 }
@@ -181,24 +192,22 @@
     justify-content: flex-start;
     align-items: center;
     color: var(--marshmallow);
-    resize: vertical;
-    overflow: auto;
 }
 
-.debt-actions-nav__selecteds-quantity{
+.debt-actions-nav-upper-section{
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+}
+
+.debt-actions-nav-upper-section__selecteds-quantity{
     font: normal normal normal 1.5rem var(--display-font);
     color: var(--beige);
     text-align: center;
 }
 
-.debt-actions-nav__close-button{
-    font: normal normal normal 1.4rem var(--display-font);
-    color: var(--marshmallow);
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 2px solid var(--black);
+.debt-actions-nav-upper-section__toggle-actions-list{
+    color: var(--beige);
 }
 
 .debt-actions-list{
@@ -208,17 +217,26 @@
     gap: 1rem 2rem;
 }
 
+.debt-actions-list_desplegated{ display: flex; }
+.debt-actions-list_fold{ display: none; }
+
 .debt-actions-list-item{}
 
 .debt-action-button{
-    color: var(--beige);
+    color: var(--marshmallow);
     font: normal normal normal 1.3rem var(--display-font);
     display: flex;
     align-items: center;
     gap: .2rem;
 }
 
+.debt-action-button_close-menu{
+    color: var(--beige);
+}
+
+
 .debts-list{
+  width: 100%;
   min-height: 40vh;
   max-height: 60vh;
   background-color: var(--grey);
@@ -309,19 +327,27 @@
         height: 2rem;
     }
 
-    .debt-actions-nav__selecteds-quantity{
-        font-size: 2.4rem;
-    }
-    .debt-actions-nav__close-button{
-        font-size: 2.3rem;
-    }
-    .debt-action-button{
-        font-size: 2.1rem;
+    .debt-actions-nav-upper-section{
+        gap: 1rem;
     }
 
+    .debt-actions-nav-upper-section__selecteds-quantity{
+        font-size: 2.4rem;
+    }
+    
+    .debt-action-button{
+        font-size: 2rem;
+    }
+
+    .debt-actions-nav-upper-section__toggle-actions-list{
+        font-size: 2.3rem;
+    }
 }
 
 @media (width >= 1280px) {
+    .debt-actions-nav{
+        max-height: 40vh;
+    }
     .debts-form{
         width: clamp(400px, 40%, 500px);
     }
@@ -342,14 +368,13 @@
         height: 1.5rem;
     }
 
-    .debt-actions-nav__selecteds-quantity{
-        font-size: 2rem;
-    }
-    .debt-actions-nav__close-button{
-        font-size: 2rem;
-    }
     .debt-action-button{
         font-size: 1.8rem;
+    }
+
+    .debt-actions-nav-upper-section__selecteds-quantity,
+    .debt-actions-nav-upper-section__toggle-actions-list {
+        font-size: 2rem;
     }
 
     .edit-tag,
@@ -365,14 +390,13 @@
         gap: .5rem;
     }
 
-    .debt-actions-nav__selecteds-quantity{
-        font-size: 1.6rem;
-    }
-    .debt-actions-nav__close-button{
-        font-size: 1.5rem;
-    }
     .debt-action-button{
         font-size: 1.4rem;
+    }
+
+    .debt-actions-nav-upper-section__selecteds-quantity,
+    .debt-actions-nav-upper-section__toggle-actions-list {
+        font-size: 1.8rem;
     }
 }
 </style>

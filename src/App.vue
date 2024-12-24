@@ -11,25 +11,23 @@
   import Modal from './components/Modal.vue';
   import useApiRequests from './composables/useAPIRequests';
   import { getTodayDateFormated } from './helpers/Dates';
+  import LoaderSpinner from './components/LoaderSpinner.vue';
 
   const customPaginatedBy = 9
 
   const defaulters = ref([])
   const pagination = ref(null)
-  const orderBy = ref({})
+  const orderBy = ref(null)
   const paramsUsedToGetDefaulters = ref({})
-  
   const isModalOpen = ref(false)
   const defaulterInfo = ref(null)
   const defaulterDebts = ref([])
   const defaulterDebtSelected = ref(null)
   const userAction = ref('') // stands for one or more letters of CRUD operations 
-  const isDoingCRUDOperations = computed(() => {
+  const wantsToReadOrUpdateADefaulter = computed(() => {
     return (userAction.value.length === 0) ? false :  
-    userAction.value.split().some( initial => 'CRUD'.includes(initial))
-  } ) 
-  const errorWhenLoadAllDefaulters = ref({bool: false, message: ''})
-  const errorWhenLoadSingleDefaulter = ref({bool: false, message: ''})
+    userAction.value.split().some( initial => 'RU'.includes(initial))
+  } )
   
   const handleCreateDefaulter = (event) => { 
     userAction.value = 'C'.toUpperCase()
@@ -61,7 +59,9 @@
     createOrUpdateDebt,
     deleteModel,
     updateDebtCollection,
-    deleteDebtCollection
+    deleteDebtCollection,
+    loaderDefaultersList,
+    loaderSingleDefaulter,
   } = useApiRequests()
 
   const toast = useToast();
@@ -74,7 +74,6 @@
     const getAllDefaultersResponse = await getAllDefaulters({ paginatedBy, page, orderByOldestCreated, orderByAlphabet, orderByLargestDebtor })
     const responseIsGood = getAllDefaultersResponse.statusText === 'OK'
     if(!responseIsGood){
-      errorWhenLoadAllDefaulters.value = { bool: true, message: `Error al cargar los morosos: ${getAllDefaultersResponse.message}` }
       pagination.value = null
       defaulters.value = []
       return
@@ -83,7 +82,6 @@
     const { data, ...paginationFields } = getAllDefaultersResponse.data.defaulters
     pagination.value = paginationFields
     defaulters.value = data
-    errorWhenLoadAllDefaulters.value = { bool: false, message: '' }
   }
 
   watch(paramsUsedToGetDefaulters, async (newParams, oldParams) => setNewDefaulters(newParams))
@@ -104,12 +102,10 @@
         errorMessage, { 
         position: "bottom-right", timeout: 5000, closeOnClick: false, pauseOnFocusLoss: true, pauseOnHover: true, draggable: true, draggablePercent: 0.6, showCloseButtonOnHover: false, hideProgressBar: true, closeButton: "button", icon: true, rtl: false
       });
-      errorWhenLoadSingleDefaulter.value = { bool: true, message: errorMessage};
-      closeModal()
+      // closeModal()
       return
     }
 
-    errorWhenLoadSingleDefaulter.value = { bool: false, message:`` };
     const { debts_by_month_year, ...restInfo } = getDefaulterInfoResponse.data.defaulter 
     defaulterInfo.value = restInfo
     defaulterDebts.value = debts_by_month_year 
@@ -281,22 +277,33 @@
         <Modal :userAction="userAction" v-if="userAction.includes('C')" @handle-close-modal="closeModal">
           <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="null" @handle-submit-form="updateLocalDefaulter" @clean-thing-selected="cleanThingSelected"/>
         </Modal>
-
         <DefaulterSearchForm @handle-submit-search-defaulter="readOrUpdateDefaulter"/>
       </div>
 
       <DefaultersFilters @handle-order-update="handleOrderUpdate"/>
-      
-      <template v-if="!errorWhenLoadAllDefaulters.bool && defaulters.length > 0">
+
+
+      <div v-if="loaderDefaultersList.isLoading.value" class="loading-block loading-block_defaulters-list"> 
+        <LoaderSpinner />
+        <span class="msg-while-loading">{{ loaderDefaultersList.msgWhileLoading.value }}</span>
+      </div>
+      <template v-if="defaulters.length > 0 && !loaderDefaultersList.isLoading.value">
         <DefaultersList @handle-click-defaulter-list="readOrUpdateDefaulter" :defaulters="defaulters"/>
         <DefaultersPagination :pagination="pagination" @handle-pagination-update="handlePaginationUpdate"/>
       </template>
-      <span class="msg-error-after-load" v-else>{{ errorWhenLoadAllDefaulters.message }}</span>
-
-      <Modal :userAction="userAction" v-if="isDoingCRUDOperations && defaulterInfo && !errorWhenLoadSingleDefaulter.bool" @handle-close-modal="closeModal" class="modal-w-form-and-list">
-        <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/>
-        <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-soft-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt" @handle-hard-delete-debt="handleHardDeleteDebt" @handle-debts-collection-update="handleDebtsCollectionUpdate" @handle-debts-collection-delete="handleDebtsCollectionHardDelete"/>
-        <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
+      <span class="msg-error-after-load" v-if="loaderDefaultersList.msgAfterLoading.value">{{ loaderDefaultersList.msgAfterLoading.value }}</span>
+ 
+      <Modal :userAction="userAction" v-if="wantsToReadOrUpdateADefaulter" @handle-close-modal="closeModal" class="modal-w-form-and-list">
+        <div v-if="loaderSingleDefaulter.isLoading.value" class="loading-block loading-block_single-defaulter"> 
+          <LoaderSpinner />
+          <span class="msg-while-loading">{{ loaderSingleDefaulter.msgWhileLoading.value }}</span>
+        </div>
+        <template v-if="!loaderSingleDefaulter.isLoading.value && defaulterInfo">
+          <DefaulterForm :data-CRUD="userAction" :defaulterInfo="defaulterInfo" :thingInfo="defaulterDebtSelected" @handle-submit-form="updateLocalDefaulter" @handle-clean-thing="cleanThingSelected"/>
+          <DefaulterDebtsList :debts="defaulterDebts" @handle-edit-debt="handleEditDebt" @handle-soft-delete-debt="handleSoftDeleteDebt" @handle-file-debt="handleFileDebt" @handle-hard-delete-debt="handleHardDeleteDebt" @handle-debts-collection-update="handleDebtsCollectionUpdate" @handle-debts-collection-delete="handleDebtsCollectionHardDelete"/>
+          <DefaulterBalancesList :debt_balance="defaulterInfo.debt_balance" :discount_balance="defaulterInfo.discount_balance" :total_balance="defaulterInfo.total_balance"/>
+        </template>
+        <span class="msg-error-after-load" v-if="loaderSingleDefaulter.msgAfterLoading.value">{{ loaderSingleDefaulter.msgAfterLoading.value }}</span>
       </Modal>
     </main>
   </section>
@@ -358,11 +365,32 @@ body:has(.modal-container){
 }
 
 .msg-error-after-load{
+  height: min-content;
   font: normal normal 400 1.5rem var(--display-font);
   color: var(--debt_balance);
   border: 2px dashed var(--debt_balance);
   padding: .5rem;
   border-radius: 10px;
+}
+
+.loading-block{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-block_defaulters-list{
+  height: clamp(30vh, 50%, 50vh);
+}
+
+.loading-block_single-defaulter{
+  height: clamp(30vh, 50%, 50vh);
+}
+
+.msg-while-loading{
+  font: normal normal normal 2rem var(--display-font);
+  text-align: center;
 }
 
 @media (width >= 768px) {
@@ -391,6 +419,10 @@ body:has(.modal-container){
 
   .add-defaulter-button__text{
     font: normal normal normal 2.2rem var(--display-font);
+  }
+
+  .msg-while-loading{
+    font-size: 2.5rem;
   }
 
   .msg-error-after-load{
@@ -427,6 +459,10 @@ body:has(.modal-container){
 
   .add-defaulter-button__text{
     font: normal normal normal 1.9rem var(--display-font);
+  }
+
+  .loading-block_defaulters-list{
+    height: clamp(370px, 100%, 60vh);
   }
 }
 </style>

@@ -48,7 +48,7 @@
 
 .close-modal-button{
     grid-area: close-btn;
-    margin: 0 0 0 auto
+    margin: 0 0 auto auto;
 }
 
 .close-modal-button__icon{

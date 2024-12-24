@@ -1,4 +1,5 @@
 import axios from "axios";
+import useLoader from './useLoader'
 
 const useApiRequests = () => {
     const LOCAL_URL = import.meta.env.VITE_LOCAL_URL
@@ -12,17 +13,35 @@ const useApiRequests = () => {
       }
     });
 
+    const loaderDefaultersList = useLoader({ isLoading: false, msgWhileLoading: 'Cargando la lista de morosos...', msgAfterLoading: '' })
+    const loaderSingleDefaulter = useLoader({ isLoading: false, msgWhileLoading: 'Cargando balances y deudas del moroso', msgAfterLoading: '' })
+    
     const getAllDefaulters = async(callParams) => {
-      // const { paginatedBy, page, orderByLastestRecent, orderByAlphabet } = callParams
+      loaderDefaultersList.resetLoader()
+      const { page, orderByAlphabet, orderByLargestDebtor, orderByOldestCreated } = callParams
+
+      const wantsToOrderList = [orderByAlphabet,orderByLargestDebtor,orderByOldestCreated].some( v => !!v) && (page === 1)
+      loaderDefaultersList.msgWhileLoading.value = (wantsToOrderList) ? 'Ordenando la lista...' : loaderDefaultersList.msgWhileLoading.value
+
       try {
+        loaderDefaultersList.isLoading.value = true
+
         const response = await instance.get('/defaulters', {
           params: {
             ...callParams
           }
         });
+        
+        loaderDefaultersList.isLoading.value = false
+        loaderDefaultersList.msgWhileLoading.value = ''
         return response
       } catch (error) {
         console.error("Error al intentar conseguir los morosos: ", error);
+
+        loaderDefaultersList.isLoading.value = false
+        loaderDefaultersList.msgWhileLoading.value = ''
+        loaderDefaultersList.msgAfterLoading.value = 'Se rompió algo (hubo un error al intentar conseguir los morosos).'
+        
         return error
       }
     };  
@@ -43,13 +62,23 @@ const useApiRequests = () => {
     };   
     
     const getDefaulterInfoById = async(defaulterId) => { 
-        try {
-          const response = await instance.get(`/defaulters/${defaulterId}`);
-          return response
-        } catch (error) {
-            console.error(`Error al tratar de conseguir el moroso (nro ${defaulterId}): `, error);
-            return error
-        }
+      loaderSingleDefaulter.resetLoader()
+      try {
+        loaderSingleDefaulter.isLoading.value = true
+        
+        const response = await instance.get(`/defaulters/${defaulterId}`);
+
+        loaderSingleDefaulter.isLoading.value = false
+        return response
+      } catch (error) {
+        console.error(`Error al tratar de conseguir el moroso (nro ${defaulterId}): `, error);
+
+        loaderSingleDefaulter.isLoading.value = false
+        loaderSingleDefaulter.msgWhileLoading.value = ''
+        loaderSingleDefaulter.msgAfterLoading.value = `Se rompió algo (hubo un error al intentar conseguir los balances y deudas del moroso (nro ${defaulterId})`
+
+        return error
+      }
     }
     
     const getThingsOfDefaulterById = async(defaulterId) => { 
@@ -163,7 +192,9 @@ const useApiRequests = () => {
       createOrUpdateDebt,
       deleteModel,
       updateDebtCollection,
-      deleteDebtCollection
+      deleteDebtCollection,
+      loaderDefaultersList,
+      loaderSingleDefaulter,
     };
   };
   

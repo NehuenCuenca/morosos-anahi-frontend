@@ -2,10 +2,10 @@
   <div class="filters-content">
     <h3 class="filters-indicator-text">Ordenar por:</h3>
     <ul class="filters-by-list">
-        <li v-for="({paramName, caption}, indexFilter) in filters" :key="indexFilter">
+        <li v-for="({caption, isActive}, indexFilter) in filters" :key="indexFilter">
           <DefaulterFilterButton 
             :caption="caption" 
-            :is-active="activeFilter === paramName" 
+            :is-active="isActive" 
             @click="setOrderBy(indexFilter)"
           />
         </li>
@@ -20,31 +20,30 @@
   const emits = defineEmits(['handle-order-update'])
 
   const filters = ref([
-    {bool: false, caption: "Alfabeticamente", paramName: 'orderByAlphabet'},
-    {bool: false, caption: "Mayor deudor", paramName: 'orderByLargestDebtor'},
-    {bool: false, caption: "Antigüedad", paramName: 'orderByOldestCreated'},
+    {isActive: false, caption: "Alfabeticamente", paramName: 'orderByAlphabet'},
+    {isActive: false, caption: "Mayor deudor", paramName: 'orderByLargestDebtor'},
+    {isActive: false, caption: "Antigüedad", paramName: 'orderByOldestCreated'},
   ])
 
   const activeFilter = ref('')
 
   const setOrderBy = (clickedOrderIndex) => { 
-    const currentFilter = filters.value.find(({ bool }) => bool)
+    const currentFilter = filters.value.find(({ isActive }) => isActive)
     const clickedOrder = filters.value[clickedOrderIndex];
 
     if(currentFilter === clickedOrder) {
-      currentFilter.bool = false
+      currentFilter.isActive = false
       activeFilter.value = ''
       emits('handle-order-update', null)
       return
     }
 
-    if(currentFilter) currentFilter.bool = false
-    clickedOrder.bool = !clickedOrder.bool
+    if(currentFilter) currentFilter.isActive = false
+    clickedOrder.isActive = !clickedOrder.isActive
     activeFilter.value = clickedOrder.paramName
 
-    emits('handle-order-update', {[clickedOrder.paramName]: clickedOrder.bool})
+    emits('handle-order-update', {[clickedOrder.paramName]: clickedOrder.isActive})
   }
-
 </script>
 
 <style scoped>
